@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "volun-mobile",
+    "slug": "volun-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/logo-start.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1C024F"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#1C024F"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/logo.png"
+    }
+  }
+}
