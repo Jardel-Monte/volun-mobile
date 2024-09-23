@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Image, TouchableOpacity, Text, Dimensions, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
-import { AuthButton } from '../componentes/authButton';
+import { BotaoAuth } from '../componentes/BotaoAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -14,15 +14,15 @@ export default function LoginScreen() {
         style={styles.logo}
         resizeMode="contain"
       />
-      <View style={styles.authButtonsContainer}>
-        <AuthButton icon={require('../assets/images/google.png')} />
-        <AuthButton icon={require('../assets/images/facebook.png')} />
+      <View style={styles.botoesAuthContainer}>
+        <BotaoAuth icon={require('../assets/images/google.png')} />
+        <BotaoAuth icon={require('../assets/images/facebook.png')} />
       </View>
-      <TouchableOpacity style={styles.createAccountButton}>
-        <Text style={[styles.createAccountButtonText, globalStyles.textSemiBold]}>Criar Conta</Text>
+      <TouchableOpacity style={styles.botaoCriarConta}>
+        <Text style={[styles.botaoCriarContaTexto, globalStyles.textSemiBold]}>Criar Conta</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.loginButton}>
-        <Text style={[styles.loginButtonText, globalStyles.textSemiBold]}>Entrar</Text>
+      <TouchableOpacity style={styles.botaoLogin}>
+        <Text style={[styles.botaoLoginTexto, globalStyles.textSemiBold]}>Entrar</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
@@ -44,13 +44,13 @@ const styles = StyleSheet.create({
     marginTop: 90,
     marginBottom: 140,
   },
-  authButtonsContainer: {
+  botoesAuthContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 30,
     marginTop: 120,
   },
-  createAccountButton: {
+  botaoCriarConta: {
     backgroundColor: theme.colors.white,
     paddingVertical: 15,
     borderRadius: 10,
@@ -63,11 +63,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 6,
   },
-  createAccountButtonText: {
+  botaoCriarContaTexto: {
     color: theme.colors.primary,
     fontSize: 16,
   },
-  loginButton: {
+  botaoLogin: {
     backgroundColor: theme.colors.secondary,
     paddingVertical: 15,
     borderRadius: 10,
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 6,
   },
-  loginButtonText: {
+  botaoLoginTexto: {
     color: theme.colors.white,
     fontSize: 16,
   },
