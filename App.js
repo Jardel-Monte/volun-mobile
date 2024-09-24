@@ -1,14 +1,43 @@
+import 'react-native-gesture-handler';
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from './hooks/useFonts';
-import LoginScreen from './screens/LoginScreen';
 import SplashScreen from './screens/SplashScreen';
+import LoginScreen from './screens/LoginScreen';
+import CriarConta from './screens/CriarConta';
+import EntrarConta from './screens/EntrarConta';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   const fontsLoaded = useFonts();
 
+  // Enquanto as fontes estão sendo carregadas, exibe a tela de splash
   if (!fontsLoaded) {
     return <SplashScreen />;
   }
 
-  return <LoginScreen />;
+  // Configura a navegação usando React Navigation
+  return(
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='Login'>
+        <Stack.Screen
+          name='Login'
+          component={LoginScreen}
+          options={{ headerShown: false }} // Esconde o header na tela de login
+        />
+        <Stack.Screen
+          name='CriarConta'
+          component={CriarConta}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='EntrarConta'
+          component={EntrarConta}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
