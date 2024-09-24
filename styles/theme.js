@@ -9,8 +9,19 @@ export const theme = {
 };
 
 export const globalStyles = StyleSheet.create({
+  textRegular: {
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '400',
+  },
   textSemiBold: {
     fontFamily: 'Poppins-SemiBold',
     fontWeight: '600',
+  },
+  textBold: {
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '800',
+  },
+  underline: {
+    textDecorationLine: 'underline',
   },
 });
