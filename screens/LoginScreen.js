@@ -2,11 +2,11 @@ import React from 'react';
 import { View, Image, TouchableOpacity, Text, Dimensions, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
-import { BotaoAuth } from '../componentes/BotaoAuth';
+import { BotaoAuth } from '../componentes/botaoAuth';
 
 const { width } = Dimensions.get('window');
 
-export default function LoginScreen() {
+export default function LoginScreen( { navigation } ) {
   return (
     <View style={styles.container}>
       <Image 
@@ -18,10 +18,10 @@ export default function LoginScreen() {
         <BotaoAuth icon={require('../assets/images/google.png')} />
         <BotaoAuth icon={require('../assets/images/facebook.png')} />
       </View>
-      <TouchableOpacity style={styles.botaoCriarConta}>
+      <TouchableOpacity style={styles.botaoCriarConta} onPress={() => navigation.navigate('CriarConta')}>
         <Text style={[styles.botaoCriarContaTexto, globalStyles.textSemiBold]}>Criar Conta</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.botaoLogin}>
+      <TouchableOpacity style={styles.botaoLogin} onPress={() => navigation.navigate('EntrarConta')}>
         <Text style={[styles.botaoLoginTexto, globalStyles.textSemiBold]}>Entrar</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
@@ -53,15 +53,15 @@ const styles = StyleSheet.create({
   botaoCriarConta: {
     backgroundColor: theme.colors.white,
     paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 16,
     width: width * 0.62,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },  
+    shadowOpacity: 0.25,                    
+    shadowRadius: 4,                        
+    elevation: 5,                           
   },
   botaoCriarContaTexto: {
     color: theme.colors.primary,
@@ -70,14 +70,14 @@ const styles = StyleSheet.create({
   botaoLogin: {
     backgroundColor: theme.colors.secondary,
     paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 16,
     width: width * 0.62,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },  
+    shadowOpacity: 0.25,                    
+    shadowRadius: 4,                        
+    elevation: 5,                           
   },
   botaoLoginTexto: {
     color: theme.colors.white,
