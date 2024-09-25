@@ -7,6 +7,8 @@ import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
 import CriarConta from './screens/CriarConta';
 import EntrarConta from './screens/EntrarConta';
+import CriarContaForm from './screens/CriarContaForm';
+import InfoForm from './screens/InfoForm';
 
 const Stack = createStackNavigator();
 
@@ -25,11 +27,21 @@ export default function App() {
         <Stack.Screen
           name='Login'
           component={LoginScreen}
-          options={{ headerShown: false }} // Esconde o header na tela de login
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name='CriarConta'
           component={CriarConta}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='CriarContaForm'
+          component={CriarContaForm}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='InfoForm'
+          component={InfoForm}
           options={{ headerShown: false }}
         />
         <Stack.Screen

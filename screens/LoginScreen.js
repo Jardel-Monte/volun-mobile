@@ -19,10 +19,10 @@ export default function LoginScreen( { navigation } ) {
         <BotaoAuth icon={require('../assets/images/facebook.png')} />
       </View>
       <TouchableOpacity style={styles.botaoCriarConta} onPress={() => navigation.navigate('CriarConta')}>
-        <Text style={[styles.botaoCriarContaTexto, globalStyles.textSemiBold]}>Criar Conta</Text>
+        <Text style={[styles.botaoCriarContaTexto, globalStyles.textBold]}>Criar Conta</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.botaoLogin} onPress={() => navigation.navigate('EntrarConta')}>
-        <Text style={[styles.botaoLoginTexto, globalStyles.textSemiBold]}>Entrar</Text>
+        <Text style={[styles.botaoLoginTexto, globalStyles.textBold]}>Entrar</Text>
       </TouchableOpacity>
       <StatusBar style="auto" />
     </View>

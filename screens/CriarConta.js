@@ -5,7 +5,7 @@ import { globalStyles, theme } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
-export default function CriarConta() {
+export default function CriarConta( { navigation } ) {
     return(
         <View style={styles.container}>
             <Text style={[styles.tituloCriarConta, globalStyles.textBold]}>Criar Conta</Text>
@@ -13,18 +13,18 @@ export default function CriarConta() {
             <View style={styles.botoesContinuarContainer}>
                 <TouchableOpacity style={styles.botaoContinuar}>
                     <Image source={require('../assets/images/google.png')} style={styles.icon} resizeMode="contain" />
-                    <Text style={[styles.botaoContinuarTexto, globalStyles.textSemiBold]}>Continuar com Google</Text>
+                    <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Google</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.botaoContinuar}>
                     <Image source={require('../assets/images/facebook.png')} style={styles.icon} resizeMode="contain" />
-                    <Text style={[styles.botaoContinuarTexto, globalStyles.textSemiBold]}>Continuar com Facebook</Text>
+                    <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Facebook</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.botaoContinuar}>
+                <TouchableOpacity style={styles.botaoContinuar} onPress={() => navigation.navigate('CriarContaForm')}>
                     <Image source={require('../assets/images/email.png')} style={styles.icon} resizeMode="contain" />
-                    <Text style={[styles.botaoContinuarTexto, globalStyles.textSemiBold]}>Continuar com Email</Text>
+                    <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Email</Text>
                 </TouchableOpacity>
             </View>
-            <Text style={[styles.loginTexto, globalStyles.textSemiBold]}>Já possui uma conta? <TouchableOpacity style={styles.loginLink}><Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Fazer login</Text></TouchableOpacity></Text>
+            <Text style={[styles.loginTexto, globalStyles.textSemiBold]}>Já possui uma conta? <TouchableOpacity style={styles.loginLink}><Text style={[globalStyles.underline, globalStyles.textSemiBold]} onPress={() => navigation.navigate('EntrarConta')}>Fazer login</Text></TouchableOpacity></Text>
             <StatusBar style="auto" />
         </View>
     );

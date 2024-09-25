@@ -19,7 +19,7 @@ export const globalStyles = StyleSheet.create({
   },
   textBold: {
     fontFamily: 'Poppins-Bold',
-    fontWeight: '800',
+    fontWeight: '1000',
   },
   underline: {
     textDecorationLine: 'underline',

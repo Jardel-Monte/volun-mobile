@@ -3,18 +3,16 @@ import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput 
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { BotaoAuth } from '../componentes/botaoAuth';
 
 const { width } = Dimensions.get('window');
 
-export default function EntrarConta( { navigation } ) {
+export default function CriarContaForm( { navigation } ) {
     const[email, setEmail] = useState('');
     const[senha, setSenha] = useState('');
     const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
 
     return(
         <View style={styles.container}>
-            <Text style={[styles.tituloEntrarConta, globalStyles.textBold]}>Entrar</Text>
             <View style={styles.inputContainer}>
                 <Image source={require('../assets/images/input-email.png')} style={styles.inputIcon}/>
                 <TextInput
@@ -33,28 +31,20 @@ export default function EntrarConta( { navigation } ) {
                 value={senha}
                 onChangeText={setSenha}
                 placeholder="Senha"
-                secureTextEntry={!senhaVisivel}  // Alterando visibilidade
+                secureTextEntry={!senhaVisivel}
                 autoCapitalize='none'
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.botaoEntrar}>
-                <Text style={[styles.botaoEntrarTexto, globalStyles.textBold]}>Entrar</Text>
+            <TouchableOpacity style={styles.botaoContinuar} onPress={() => navigation.navigate('InfoForm')}>
+                <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={[styles.esqueciSenha, globalStyles.textSemiBold, globalStyles.underline]}>Esqueci minha senha</Text>
-            </TouchableOpacity>
-            <View style={styles.botoesAuthContainer}>
-            <BotaoAuth icon={require('../assets/images/google.png')} />
-            <BotaoAuth icon={require('../assets/images/facebook.png')} />
+            <Text style={[styles.termosCondicoes, globalStyles.textRegular]}>Ao continuar, você concorda com nossa <TouchableOpacity><Text style={globalStyles.underline}>Política de Privacidade</Text></TouchableOpacity> e <TouchableOpacity><Text style={globalStyles.underline}>Termos & Condições</Text></TouchableOpacity></Text>
+            <View style={styles.loginLinkContainer}>
+            <Text style={[styles.loginTexto, globalStyles.textSemiBold]}>Já possui uma conta? <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('EntrarConta')}><Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Fazer login</Text></TouchableOpacity></Text>
             </View>
-            <Text style={[styles.cadastroTexto, globalStyles.textSemiBold]}>
-            Não tem cadastro? <TouchableOpacity style={styles.cadastroLink} onPress={() => navigation.navigate('CriarConta')}>
-            <Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Cadastre-se</Text>
-            </TouchableOpacity>
-</Text>
             <StatusBar style="auto" />
         </View>
     );
@@ -65,15 +55,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FBFBFE',
         alignItems: 'center',
-        justifyContent: 'center',
         paddingHorizontal: 20,
-    },
-    tituloEntrarConta: {
-        fontSize: 30,
-        marginTop: 60,
-        marginBottom: 20,
-        marginLeft: 25,
-        alignSelf: 'flex-start',
+        justifyContent: 'center',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -107,36 +90,44 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
-    botaoEntrar: {
+    termosCondicoes: {
+        fontSize: 14,
+        textAlign: 'center',
+        textAlignVertical: 'top',
+        marginBottom: 45,
+        marginTop: 5,
+    },
+    botaoContinuar: {
         backgroundColor: theme.colors.primary,
         paddingVertical: 15,
         borderRadius: 16,
         width: width * 0.8,
         alignItems: 'center',
-        marginBottom: 20,
+        marginTop: 20,
+        marginBottom: 10,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },  
         shadowOpacity: 0.25,                    
         shadowRadius: 4,                        
         elevation: 5,                           
     },
-    botaoEntrarTexto: {
+    botaoContinuarTexto: {
         color: theme.colors.white,
         fontSize: 16,
     },
-    esqueciSenha: {
+    icon: {
+        width: 24,
+        height: 24,
+        marginLeft: 20,
+        marginRight: 15,
+    },
+    loginLinkContainer: {
+        justifyContent: 'center'
+    },
+    loginTexto: {
         fontSize: 16,
     },
-    cadastroTexto: {
-        fontSize: 16,
-    },
-    cadastroLink: {
+    loginLink: {
         color: theme.colors.secondary,
-    },
-    botoesAuthContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 30,
-        marginTop: 80,
     },
 });
