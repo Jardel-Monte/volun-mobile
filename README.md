@@ -62,10 +62,10 @@ volun-mobile/
 ├── hooks/                # Recursos reutilizáveis do React
 ├── screens/              # Telas principais do app (Login, Splash, etc.)
 ├── styles/               # Definições de estilos globais
+├── services/             # Configurações do Firebase
 ├── App.js                # Componente raiz da aplicação
 ├── app.json              # Configurações do projeto Expo
-├── package.json          # Dependências do projeto
-└── firebase-config.js    # Configurações do Firebase
+└── package.json          # Dependências do projeto
 ```
 
 ## 🔧 Customizações
