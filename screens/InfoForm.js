@@ -13,6 +13,33 @@ export default function InfoForm() {
     const [ddd, setDdd] = useState('');
     const [telefone, setTelefone] = useState('');
 
+    const handleSubmitInfo = () => {
+        const userInfo = {
+            nome,
+            sobrenome,
+            cpf,
+            dataNascimento,
+            ddd,
+            telefone,
+        };
+
+        fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userInfo),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Informações salvas com sucesso:", data);
+            // Navegar para a próxima tela ou mostrar uma mensagem de sucesso
+        })
+        .catch(error => {
+            console.error("Erro ao salvar informações:", error);
+        });
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             <Text style={[styles.titulo, globalStyles.textBold]}>Insira os dados pessoais</Text>
@@ -85,7 +112,7 @@ export default function InfoForm() {
                 </View>
             </View>
 
-            <TouchableOpacity style={styles.botaoContinuar}>
+            <TouchableOpacity style={styles.botaoContinuar} onPress={handleSubmitInfo}>
                 <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar</Text>
             </TouchableOpacity>
 

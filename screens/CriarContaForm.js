@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput } from 'react-native';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import app from '../services/firebase-config';  // Importação do Firebase Config
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +12,25 @@ export default function CriarContaForm( { navigation } ) {
     const[email, setEmail] = useState('');
     const[senha, setSenha] = useState('');
     const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
+
+    const handleCriarConta = () => {
+        const auth = getAuth(app);
+        
+        createUserWithEmailAndPassword(auth, email, senha)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const uid = user.uid;  // Pegando o UID do usuário criado
+
+            // Navegar para a tela InfoForm passando o UID
+            navigation.navigate('InfoForm', { uid });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // Tratar erros
+            console.log(`Error: ${errorCode}, Message: ${errorMessage}`);
+        });
+    };
 
     return(
         <View style={styles.container}>
@@ -38,7 +59,7 @@ export default function CriarContaForm( { navigation } ) {
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.botaoContinuar} onPress={() => navigation.navigate('InfoForm')}>
+            <TouchableOpacity style={styles.botaoContinuar} onPress={handleCriarConta}>
                 <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar</Text>
             </TouchableOpacity>
             <Text style={[styles.termosCondicoes, globalStyles.textRegular]}>Ao continuar, você concorda com nossa <TouchableOpacity><Text style={globalStyles.underline}>Política de Privacidade</Text></TouchableOpacity> e <TouchableOpacity><Text style={globalStyles.underline}>Termos & Condições</Text></TouchableOpacity></Text>
