@@ -59,6 +59,7 @@ npx expo start
 volun-mobile/
 ├── assets/               # Assets estáticos como imagens
 ├── components/           # Componentes reutilizáveis da interface
+├── hooks/                # Recursos reutilizáveis do React
 ├── screens/              # Telas principais do app (Login, Splash, etc.)
 ├── styles/               # Definições de estilos globais
 ├── App.js                # Componente raiz da aplicação
