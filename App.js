@@ -9,6 +9,9 @@ import CriarConta from './screens/CriarConta';
 import EntrarConta from './screens/EntrarConta';
 import CriarContaForm from './screens/CriarContaForm';
 import InfoForm from './screens/InfoForm';
+import HomeScreen from './screens/HomeScreen';
+import { AppRegistry } from 'react-native';
+import { firebase } from './services/firebase-config';
 
 const Stack = createStackNavigator();
 
@@ -49,7 +52,15 @@ export default function App() {
           component={EntrarConta}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name='HomeScreen'
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+// Registrando o componente principal
+AppRegistry.registerComponent('main', () => App); 
