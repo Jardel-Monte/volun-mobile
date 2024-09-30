@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { BotaoAuth } from '../componentes/botaoAuth';
+import { auth } from '../services/firebase-config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +13,37 @@ export default function EntrarConta( { navigation } ) {
     const[email, setEmail] = useState('');
     const[senha, setSenha] = useState('');
     const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
+
+    // Função para lidar com o login
+    const handleLogin = () => {
+        // Verifica se o email e a senha foram preenchidos
+        if (!email || !senha) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+            return;
+        }
+
+        // Autenticar com Firebase
+
+            signInWithEmailAndPassword(auth, email, senha)
+            .then((userCredential) => {
+                console.log('Usuário autenticado com sucesso:', userCredential.user);
+                // Redirecionar o usuário para outra tela, por exemplo, página inicial
+                navigation.navigate('HomeScreen');
+            })
+            .catch(error => {
+                // Tratar os erros comuns de autenticação
+                if (error.code === 'auth/invalid-email') {
+                    Alert.alert('Erro', 'Email inválido.');
+                } else if (error.code === 'auth/user-not-found') {
+                    Alert.alert('Erro', 'Usuário não encontrado.');
+                } else if (error.code === 'auth/wrong-password') {
+                    Alert.alert('Erro', 'Senha incorreta.');
+                } else {
+                    Alert.alert('Erro', 'Falha ao autenticar.');
+                }
+                console.error(error);
+            });
+    };
 
     return(
         <View style={styles.container}>
@@ -40,7 +73,7 @@ export default function EntrarConta( { navigation } ) {
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.botaoEntrar}>
+            <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
                 <Text style={[styles.botaoEntrarTexto, globalStyles.textBold]}>Entrar</Text>
             </TouchableOpacity>
             <TouchableOpacity>
