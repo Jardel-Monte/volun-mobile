@@ -5,23 +5,65 @@ import { globalStyles, theme } from '../styles/theme';
 
 const { width } = Dimensions.get('window');
 
-export default function InfoForm() {
+export default function InfoForm({ route }) {
+    const { uid } = route.params;  // Pegando o UID vindo da rota
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
     const [cpf, setCpf] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
     const [ddd, setDdd] = useState('');
     const [telefone, setTelefone] = useState('');
+    
+    // Função para formatar a data com "/" ao digitar
+    const handleDataNascimentoChange = (text) => {
+        // Remover tudo que não for número
+        const cleaned = text.replace(/[^\d]/g, '');
+        
+        let formatted = cleaned;
+
+        // Inserir "/" no formato DD/MM/AAAA
+        if (cleaned.length >= 5) {
+            formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
+        } else if (cleaned.length >= 3) {
+            formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
+        }
+
+        // Atualiza o campo com a formatação
+        setDataNascimento(formatted);
+    };
+
+    // Função para converter a data do formato DD/MM/AAAA para YYYY-MM-DD
+    const formatarDataParaEnvio = (data) => {
+        const partes = data.split('/');
+        if (partes.length === 3) {
+            const [dia, mes, ano] = partes;
+            return `${ano}-${mes}-${dia}`; // Retorna a data no formato YYYY-MM-DD
+        }
+        return data; // Retorna a data sem modificação se não estiver no formato esperado
+    };
+
+
 
     const handleSubmitInfo = () => {
+
+        const dataFormatada = formatarDataParaEnvio(dataNascimento);
+
         const userInfo = {
-            nome,
-            sobrenome,
-            cpf,
-            dataNascimento,
-            ddd,
-            telefone,
+            nome: nome,
+            sobrenome: sobrenome,
+            cpf: cpf,
+            data_nascimento: dataFormatada,
+            ddd: ddd,
+            telefone: telefone
         };
+
+        // Verifica se todos os campos estão preenchidos
+        for (const key in userInfo) {
+            if (userInfo[key] === undefined || userInfo[key] === '') {
+                console.error(`Campo ${key} não pode ser vazio ou indefinido.`);
+                return; // Retorna sem fazer a requisição
+            }
+        }
 
         fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
             method: 'POST',
@@ -39,6 +81,8 @@ export default function InfoForm() {
             console.error("Erro ao salvar informações:", error);
         });
     };
+
+    
 
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -80,7 +124,7 @@ export default function InfoForm() {
                     <TextInput
                         style={styles.input}
                         value={dataNascimento}
-                        onChangeText={setDataNascimento}
+                        onChangeText={handleDataNascimentoChange}
                         placeholder="Data de Nascimento"
                         keyboardType="numeric"
                         maxLength={10}
@@ -127,23 +171,22 @@ const styles = StyleSheet.create({
         backgroundColor: '#FBFBFE',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingVertical: 20,
+        paddingTop: 40,
+        justifyContent: 'center',
     },
     titulo: {
         fontSize: 24,
-        marginTop: 150,
-        marginBottom: 40,
-        textAlign: 'center',
+        marginBottom: 30,
     },
     inputContainer: {
+        width: width * 0.8,
+        marginBottom: 15,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        paddingHorizontal: 20,
+        height: 50,
         borderColor: '#E0E0E0',
         borderWidth: 1,
-        paddingHorizontal: 10,
-        marginBottom: 15,
-        width: width * 0.85,
-        height: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
@@ -153,17 +196,16 @@ const styles = StyleSheet.create({
     inputGroup: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        width: width * 0.85,
         marginBottom: 15,
     },
     inputCPFContainer: {
+        width: width * 0.45,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        paddingHorizontal: 20,
+        height: 50,
         borderColor: '#E0E0E0',
         borderWidth: 1,
-        paddingHorizontal: 10,
-        width: '46%', // Ajustado para caber os dois inputs na mesma linha
-        height: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
@@ -171,13 +213,13 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     inputDataNascContainer: {
+        width: width * 0.35,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        paddingHorizontal: 20,
+        height: 50,
         borderColor: '#E0E0E0',
         borderWidth: 1,
-        paddingHorizontal: 5,
-        width: '48%', // Ajustado para caber os dois inputs na mesma linha
-        height: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
@@ -185,13 +227,13 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     inputDDDContainer: {
+        width: width * 0.2,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        paddingHorizontal: 20,
+        height: 50,
         borderColor: '#E0E0E0',
         borderWidth: 1,
-        paddingHorizontal: 10,
-        width: '30%',
-        height: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
@@ -199,31 +241,27 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     inputTelefoneContainer: {
+        width: width * 0.55,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        paddingHorizontal: 20,
+        height: 50,
         borderColor: '#E0E0E0',
         borderWidth: 1,
-        paddingHorizontal: 10,
-        width: '65%',
-        height: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
     },
-    input: {
-        flex: 1,
-        fontSize: 16,
-        color: '#333',
-    },
     botaoContinuar: {
         backgroundColor: theme.colors.primary,
         paddingVertical: 15,
         borderRadius: 16,
-        width: width * 0.85,
+        width: width * 0.8,
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: 20,
+        marginBottom: 40,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,

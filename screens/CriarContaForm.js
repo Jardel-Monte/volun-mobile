@@ -8,10 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-export default function CriarContaForm( { navigation } ) {
-    const[email, setEmail] = useState('');
-    const[senha, setSenha] = useState('');
-    const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
+export default function CriarContaForm({ navigation }) {
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+    const [senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
 
     const handleCriarConta = () => {
         const auth = getAuth(app);
@@ -32,28 +32,28 @@ export default function CriarContaForm( { navigation } ) {
         });
     };
 
-    return(
+    return (
         <View style={styles.container}>
             <View style={styles.inputContainer}>
-                <Image source={require('../assets/images/input-email.png')} style={styles.inputIcon}/>
+                <Image source={require('../assets/images/input-email.png')} style={styles.inputIcon} />
                 <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize='none'
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    autoCapitalize='none'
                 />
             </View>
             <View style={styles.inputContainer}>
-                <Image source={require('../assets/images/input-senha.png')} style={styles.inputIcon}/>
+                <Image source={require('../assets/images/input-senha.png')} style={styles.inputIcon} />
                 <TextInput
-                style={styles.inputSenha}
-                value={senha}
-                onChangeText={setSenha}
-                placeholder="Senha"
-                secureTextEntry={!senhaVisivel}
-                autoCapitalize='none'
+                    style={styles.inputSenha}
+                    value={senha}
+                    onChangeText={setSenha}
+                    placeholder="Senha"
+                    secureTextEntry={!senhaVisivel}
+                    autoCapitalize='none'
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
@@ -62,9 +62,13 @@ export default function CriarContaForm( { navigation } ) {
             <TouchableOpacity style={styles.botaoContinuar} onPress={handleCriarConta}>
                 <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar</Text>
             </TouchableOpacity>
-            <Text style={[styles.termosCondicoes, globalStyles.textRegular]}>Ao continuar, você concorda com nossa <TouchableOpacity><Text style={globalStyles.underline}>Política de Privacidade</Text></TouchableOpacity> e <TouchableOpacity><Text style={globalStyles.underline}>Termos & Condições</Text></TouchableOpacity></Text>
+            <Text style={[styles.termosCondicoes, globalStyles.textRegular]}>
+                Ao continuar, você concorda com nossa <TouchableOpacity><Text style={globalStyles.underline}>Política de Privacidade</Text></TouchableOpacity> e <TouchableOpacity><Text style={globalStyles.underline}>Termos & Condições</Text></TouchableOpacity>
+            </Text>
             <View style={styles.loginLinkContainer}>
-            <Text style={[styles.loginTexto, globalStyles.textSemiBold]}>Já possui uma conta? <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('EntrarConta')}><Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Fazer login</Text></TouchableOpacity></Text>
+                <Text style={[styles.loginTexto, globalStyles.textSemiBold]}>
+                    Já possui uma conta? <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('EntrarConta')}><Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Fazer login</Text></TouchableOpacity>
+                </Text>
             </View>
             <StatusBar style="auto" />
         </View>
@@ -91,10 +95,10 @@ const styles = StyleSheet.create({
         width: width * 0.8,
         height: 50,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },  
-        shadowOpacity: 0.25,                    
-        shadowRadius: 4,                        
-        elevation: 5, 
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     inputIcon: {
         width: 24,
@@ -127,23 +131,17 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },  
-        shadowOpacity: 0.25,                    
-        shadowRadius: 4,                        
-        elevation: 5,                           
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     botaoContinuarTexto: {
         color: theme.colors.white,
         fontSize: 16,
     },
-    icon: {
-        width: 24,
-        height: 24,
-        marginLeft: 20,
-        marginRight: 15,
-    },
     loginLinkContainer: {
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     loginTexto: {
         fontSize: 16,
