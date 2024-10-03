@@ -9,9 +9,8 @@ import CriarConta from './screens/CriarConta';
 import EntrarConta from './screens/EntrarConta';
 import CriarContaForm from './screens/CriarContaForm';
 import InfoForm from './screens/InfoForm';
-import HomeScreen from './screens/HomeScreen';
+import MyTabs from './screens/MyTabs'; // Correct import for MyTabs
 import { AppRegistry } from 'react-native';
-import { firebase } from './services/firebase-config';
 
 const Stack = createStackNavigator();
 
@@ -24,7 +23,7 @@ export default function App() {
   }
 
   // Configura a navegação usando React Navigation
-  return(
+  return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Login'>
         <Stack.Screen
@@ -54,7 +53,7 @@ export default function App() {
         />
         <Stack.Screen
           name='HomeScreen'
-          component={HomeScreen}
+          component={MyTabs} // Use MyTabs instead of HomeScreen
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
@@ -63,4 +62,4 @@ export default function App() {
 }
 
 // Registrando o componente principal
-AppRegistry.registerComponent('main', () => App); 
+AppRegistry.registerComponent('main', () => App);
