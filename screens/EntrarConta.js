@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { BotaoAuth } from '../componentes/botaoAuth';
 import { auth } from '../services/firebase-config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -14,36 +15,52 @@ export default function EntrarConta( { navigation } ) {
     const[senha, setSenha] = useState('');
     const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
 
+    // const clearAsyncStorage = async () => {
+    //     await AsyncStorage.removeItem('firstLogin');
+    //     console.log('AsyncStorage limpo.');
+    // };
+
+    // useEffect(() => {
+    //     clearAsyncStorage();
+    // }, []);
+
     // Função para lidar com o login
-    const handleLogin = () => {
-        // Verifica se o email e a senha foram preenchidos
+    const handleLogin = async () => {
         if (!email || !senha) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;
         }
-
-        // Autenticar com Firebase
-
-            signInWithEmailAndPassword(auth, email, senha)
-            .then((userCredential) => {
-                console.log('Usuário autenticado com sucesso:', userCredential.user);
-                // Redirecionar o usuário para outra tela, por exemplo, página inicial
+    
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+            console.log('Usuário autenticado com sucesso:', userCredential.user);
+            
+            const firstLogin = await AsyncStorage.getItem('firstLogin');
+            console.log('Primeiro login:', firstLogin); // Adicionei log aqui
+    
+            if (firstLogin === null || firstLogin === 'false') {
+                await AsyncStorage.setItem('firstLogin', 'true');
+                console.log('Navegando para BemVindo');
+                navigation.navigate('BemVindo');
+            } else {
+                console.log('Navegando para HomeScreen');
                 navigation.navigate('HomeScreen');
-            })
-            .catch(error => {
-                // Tratar os erros comuns de autenticação
-                if (error.code === 'auth/invalid-email') {
-                    Alert.alert('Erro', 'Email inválido.');
-                } else if (error.code === 'auth/user-not-found') {
-                    Alert.alert('Erro', 'Usuário não encontrado.');
-                } else if (error.code === 'auth/wrong-password') {
-                    Alert.alert('Erro', 'Senha incorreta.');
-                } else {
-                    Alert.alert('Erro', 'Falha ao autenticar.');
-                }
-                console.error(error);
-            });
+            }
+        } catch (error) {
+            // Tratar os erros comuns de autenticação
+            if (error.code === 'auth/invalid-email') {
+                Alert.alert('Erro', 'Email inválido.');
+            } else if (error.code === 'auth/user-not-found') {
+                Alert.alert('Erro', 'Usuário não encontrado.');
+            } else if (error.code === 'auth/wrong-password') {
+                Alert.alert('Erro', 'Senha incorreta.');
+            } else {
+                Alert.alert('Erro', 'Falha ao autenticar.');
+            }
+            console.error(error);
+        }
     };
+    
 
     return(
         <View style={styles.container}>
@@ -84,10 +101,10 @@ export default function EntrarConta( { navigation } ) {
             <BotaoAuth icon={require('../assets/images/facebook.png')} />
             </View>
             <Text style={[styles.cadastroTexto, globalStyles.textSemiBold]}>
-            Não tem cadastro? <TouchableOpacity style={styles.cadastroLink} onPress={() => navigation.navigate('CriarConta')}>
-            <Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Cadastre-se</Text>
-            </TouchableOpacity>
-</Text>
+                Não tem cadastro? <TouchableOpacity style={styles.cadastroLink} onPress={() => navigation.navigate('CriarConta')}>
+                <Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Cadastre-se</Text>
+                </TouchableOpacity>
+            </Text>
             <StatusBar style="auto" />
         </View>
     );

@@ -24,4 +24,7 @@ export const globalStyles = StyleSheet.create({
   underline: {
     textDecorationLine: 'underline',
   },
+  orangeFont: {
+    color: theme.colors.secondary,
+  },
 });

@@ -1,4 +1,3 @@
-// screens/MyTabs.js
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -41,9 +40,13 @@ function MyTabs() {
           return <Icon name={iconName} size={size} color={color} />;
         },
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
+      
+      screenOptions={{
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          display: 'flex',
+        },
       }}
     >
       <Tab.Screen name="Início" component={HomeScreen} />

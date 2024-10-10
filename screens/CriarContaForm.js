@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput, Alert } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import app from '../services/firebase-config';  // Importação do Firebase Config
 import { StatusBar } from 'expo-status-bar';
@@ -11,25 +11,46 @@ const { width } = Dimensions.get('window');
 export default function CriarContaForm({ navigation }) {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+    const [confirmarSenha, setConfirmarSenha] = useState('');
     const [senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
+    const [senhaConfirmarVisivel, setSenhaConfirmarVisivel] = useState(false);
 
-    const handleCriarConta = () => {
+    const isValidEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
+    const handleCriarConta = async () => {
+        if (!isValidEmail(email)) {
+            Alert.alert('Erro', 'Email inválido.');
+            return;
+        }
+        
+        if (senha.length < 6) {
+            Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+            return;
+        }
+
+        if (senha !== confirmarSenha) {
+            Alert.alert('Erro', 'As senhas não coincidem.');
+            return;
+        }
+
         const auth = getAuth(app);
         
-        createUserWithEmailAndPassword(auth, email, senha)
-        .then((userCredential) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
             const user = userCredential.user;
-            const uid = user.uid;  // Pegando o UID do usuário criado
+            const uid = user.uid;
 
             // Navegar para a tela InfoForm passando o UID
             navigation.navigate('InfoForm', { uid });
-        })
-        .catch((error) => {
+        } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
-            // Tratar erros
             console.log(`Error: ${errorCode}, Message: ${errorMessage}`);
-        });
+            Alert.alert('Erro', errorMessage);
+        }
     };
 
     return (
@@ -57,6 +78,20 @@ export default function CriarContaForm({ navigation }) {
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.inputContainer}>
+                <Image source={require('../assets/images/input-senha.png')} style={styles.inputIcon} />
+                <TextInput
+                    style={styles.inputSenha}
+                    value={confirmarSenha}
+                    onChangeText={setConfirmarSenha}
+                    placeholder="Confirmar Senha"
+                    secureTextEntry={!senhaConfirmarVisivel}
+                    autoCapitalize='none'
+                />
+                <TouchableOpacity onPress={() => setSenhaConfirmarVisivel(!senhaConfirmarVisivel)} style={styles.eyeIcon}>
+                    <Ionicons style={styles.senhaIcon} name={senhaConfirmarVisivel ? "eye" : "eye-off"} size={24} color="gray" />
                 </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.botaoContinuar} onPress={handleCriarConta}>
