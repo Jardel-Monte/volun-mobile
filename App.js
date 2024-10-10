@@ -1,7 +1,8 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useFonts } from './hooks/useFonts';
 import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -9,7 +10,8 @@ import CriarConta from './screens/CriarConta';
 import EntrarConta from './screens/EntrarConta';
 import CriarContaForm from './screens/CriarContaForm';
 import InfoForm from './screens/InfoForm';
-import MyTabs from './screens/MyTabs'; // Correct import for MyTabs
+import BemVindo from './screens/BemVindo';
+import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -17,12 +19,17 @@ const Stack = createStackNavigator();
 export default function App() {
   const fontsLoaded = useFonts();
 
-  // Enquanto as fontes estão sendo carregadas, exibe a tela de splash
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '276715044615-plaeq5a4ckgbct3on37roeer5fhlfvcd.apps.googleusercontent.com',
+      offlineAccess: true,
+    });
+  }, []);
+
   if (!fontsLoaded) {
     return <SplashScreen />;
   }
 
-  // Configura a navegação usando React Navigation
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Login'>
@@ -52,8 +59,13 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name='BemVindo'
+          component={BemVindo}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name='HomeScreen'
-          component={MyTabs} // Use MyTabs instead of HomeScreen
+          component={MyTabs}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
@@ -61,5 +73,4 @@ export default function App() {
   );
 }
 
-// Registrando o componente principal
 AppRegistry.registerComponent('main', () => App);

@@ -18,10 +18,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#1C024F"
-      }
+      },
+      "package": "com.volun.volunmobile"
     },
     "web": {
       "favicon": "./assets/images/logo.png"
-    }
+    },
+    "plugins": [
+      "@react-native-google-signin/google-signin"
+    ]
   }
 }

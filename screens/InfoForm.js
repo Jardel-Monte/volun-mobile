@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Dimensions, StyleSheet, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-export default function InfoForm({ route }) {
+export default function InfoForm({ route, navigation }) {
     const { uid } = route.params;  // Pegando o UID vindo da rota
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
@@ -44,10 +45,9 @@ export default function InfoForm({ route }) {
 
 
 
-    const handleSubmitInfo = () => {
-
+    const handleSubmitInfo = async () => {
         const dataFormatada = formatarDataParaEnvio(dataNascimento);
-
+    
         const userInfo = {
             nome: nome,
             sobrenome: sobrenome,
@@ -56,7 +56,7 @@ export default function InfoForm({ route }) {
             ddd: ddd,
             telefone: telefone
         };
-
+    
         // Verifica se todos os campos estão preenchidos
         for (const key in userInfo) {
             if (userInfo[key] === undefined || userInfo[key] === '') {
@@ -64,22 +64,32 @@ export default function InfoForm({ route }) {
                 return; // Retorna sem fazer a requisição
             }
         }
-
-        fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userInfo),
-        })
-        .then(response => response.json())
-        .then(data => {
+    
+        try {
+            const response = await fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userInfo),
+            });
+            
+            const data = await response.json();
             console.log("Informações salvas com sucesso:", data);
-            // Navegar para a próxima tela ou mostrar uma mensagem de sucesso
-        })
-        .catch(error => {
+            
+            // Verifica se é o primeiro login
+            const firstLogin = await AsyncStorage.getItem('firstLogin');
+            if (firstLogin === null || firstLogin === 'false') {
+                await AsyncStorage.setItem('firstLogin', 'true');
+                console.log('Navegando para BemVindo');
+                navigation.navigate('BemVindo');
+            } else {
+                console.log('Navegando para HomeScreen');
+                navigation.navigate('HomeScreen');
+            }
+        } catch (error) {
             console.error("Erro ao salvar informações:", error);
-        });
+        }
     };
 
     
