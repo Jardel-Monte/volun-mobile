@@ -6,7 +6,7 @@ import { BotaoAuth } from '../componentes/botaoAuth';
 
 const { width } = Dimensions.get('window');
 
-export default function LoginScreen( { navigation } ) {
+export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image 
@@ -15,8 +15,9 @@ export default function LoginScreen( { navigation } ) {
         resizeMode="contain"
       />
       <View style={styles.botoesAuthContainer}>
-        <BotaoAuth icon={require('../assets/images/google.png')} />
-        <BotaoAuth icon={require('../assets/images/facebook.png')} />
+        {/* Passe o navigation para BotaoAuth */}
+        <BotaoAuth icon={require('../assets/images/google.png')} navigation={navigation} />
+        <BotaoAuth icon={require('../assets/images/facebook.png')} navigation={navigation} />
       </View>
       <TouchableOpacity style={styles.botaoCriarConta} onPress={() => navigation.navigate('CriarConta')}>
         <Text style={[styles.botaoCriarContaTexto, globalStyles.textBold]}>Criar Conta</Text>
