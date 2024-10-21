@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
@@ -7,22 +7,25 @@ import { BotaoAuth } from '../componentes/botaoAuth';
 import { auth } from '../services/firebase-config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
+// Função para verificar se o UID existe na tabela 'usuarios'
+async function verificarUsuario(uid) {
+    try {
+        const response = await axios.get(`https:\\volun-api-eight.vercel.app/usuarios/{uid}`);
+        return response.data; // Espera-se que os dados retornem um array de usuários
+    } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+        return null;
+    }
+}
+
 export default function EntrarConta( { navigation } ) {
-    const[email, setEmail] = useState('');
-    const[senha, setSenha] = useState('');
-    const[senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
-
-    // const clearAsyncStorage = async () => {
-    //     await AsyncStorage.removeItem('firstLogin');
-    //     console.log('AsyncStorage limpo.');
-    // };
-
-    // useEffect(() => {
-    //     clearAsyncStorage();
-    // }, []);
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
+    const [senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
 
     // Função para lidar com o login
     const handleLogin = async () => {
@@ -30,21 +33,22 @@ export default function EntrarConta( { navigation } ) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;
         }
-    
+
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, senha);
             console.log('Usuário autenticado com sucesso:', userCredential.user);
-            
-            const firstLogin = await AsyncStorage.getItem('firstLogin');
-            console.log('Primeiro login:', firstLogin); // Adicionei log aqui
-    
-            if (firstLogin === null || firstLogin === 'false') {
-                await AsyncStorage.setItem('firstLogin', 'true');
-                console.log('Navegando para BemVindo');
-                navigation.navigate('BemVindo');
-            } else {
-                console.log('Navegando para HomeScreen');
+
+            const uid = userCredential.user.uid;
+
+            // Verificar se o usuário já está cadastrado na tabela 'usuarios' do MongoDB
+            const usuario = await verificarUsuario(uid);
+
+            if (usuario && usuario.length > 0) {
+                // Se o usuário já existe, navegue para a HomeScreen
                 navigation.navigate('HomeScreen');
+            } else {
+                // Se o usuário não existe, navegue para a InfoForm, passando o UID
+                navigation.navigate('InfoForm', { uid });
             }
         } catch (error) {
             // Tratar os erros comuns de autenticação
@@ -60,31 +64,30 @@ export default function EntrarConta( { navigation } ) {
             console.error(error);
         }
     };
-    
 
-    return(
+    return (
         <View style={styles.container}>
             <Text style={[styles.tituloEntrarConta, globalStyles.textBold]}>Entrar</Text>
             <View style={styles.inputContainer}>
-                <Image source={require('../assets/images/input-email.png')} style={styles.inputIcon}/>
+                <Image source={require('../assets/images/input-email.png')} style={styles.inputIcon} />
                 <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize='none'
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    autoCapitalize='none'
                 />
             </View>
             <View style={styles.inputContainer}>
-                <Image source={require('../assets/images/input-senha.png')} style={styles.inputIcon}/>
+                <Image source={require('../assets/images/input-senha.png')} style={styles.inputIcon} />
                 <TextInput
-                style={styles.inputSenha}
-                value={senha}
-                onChangeText={setSenha}
-                placeholder="Senha"
-                secureTextEntry={!senhaVisivel}  // Alterando visibilidade
-                autoCapitalize='none'
+                    style={styles.inputSenha}
+                    value={senha}
+                    onChangeText={setSenha}
+                    placeholder="Senha"
+                    secureTextEntry={!senhaVisivel}  // Alterando visibilidade
+                    autoCapitalize='none'
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
@@ -97,12 +100,12 @@ export default function EntrarConta( { navigation } ) {
                 <Text style={[styles.esqueciSenha, globalStyles.textSemiBold, globalStyles.underline]}>Esqueci minha senha</Text>
             </TouchableOpacity>
             <View style={styles.botoesAuthContainer}>
-            <BotaoAuth icon={require('../assets/images/google.png')} />
-            <BotaoAuth icon={require('../assets/images/facebook.png')} />
+                <BotaoAuth icon={require('../assets/images/google.png')} />
+                <BotaoAuth icon={require('../assets/images/facebook.png')} />
             </View>
             <Text style={[styles.cadastroTexto, globalStyles.textSemiBold]}>
                 Não tem cadastro? <TouchableOpacity style={styles.cadastroLink} onPress={() => navigation.navigate('CriarConta')}>
-                <Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Cadastre-se</Text>
+                    <Text style={[globalStyles.underline, globalStyles.textSemiBold]}>Cadastre-se</Text>
                 </TouchableOpacity>
             </Text>
             <StatusBar style="auto" />
@@ -137,10 +140,10 @@ const styles = StyleSheet.create({
         width: width * 0.8,
         height: 50,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },  
-        shadowOpacity: 0.25,                    
-        shadowRadius: 4,                        
-        elevation: 5, 
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     inputIcon: {
         width: 24,
@@ -165,10 +168,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },  
-        shadowOpacity: 0.25,                    
-        shadowRadius: 4,                        
-        elevation: 5,                           
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     botaoEntrarTexto: {
         color: theme.colors.white,
