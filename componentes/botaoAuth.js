@@ -9,23 +9,28 @@ const { width } = Dimensions.get('window');
 export const BotaoAuth = ({ icon, navigation }) => {
   const handleGoogleSignIn = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const googleCredential = GoogleAuthProvider.credential(userInfo.idToken);
-
+      await GoogleSignin.hasPlayServices(); // Verifica se os serviços do Google Play estão disponíveis
+      
+      const userInfo = await GoogleSignin.signIn(); // Faz o login com o Google
+      
+      const googleCredential = GoogleAuthProvider.credential(userInfo.idToken); // Obtém as credenciais do Google
+      
       // Autentica no Firebase usando as credenciais do Google
-      await signInWithCredential(auth, googleCredential);
+      await signInWithCredential(auth, googleCredential); 
+      
       console.log('Usuário logado com sucesso!', userInfo);
-
-      // Navega para a HomeScreen após login bem-sucedido
+      
+      // Navega para a HomeScreen após o login bem-sucedido
       navigation.navigate('HomeScreen');
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('Login cancelado');
+        console.log('Login cancelado pelo usuário');
       } else if (error.code === statusCodes.IN_PROGRESS) {
         console.log('Login em andamento');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Google Play Services não disponível ou desatualizado');
       } else {
-        console.log('Erro ao logar com Google:', error);
+        console.log('Erro ao logar com Google:', error); // Exibe qualquer outro erro
       }
     }
   };

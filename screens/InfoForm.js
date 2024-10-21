@@ -12,28 +12,58 @@ export default function InfoForm({ route, navigation }) {
     const [sobrenome, setSobrenome] = useState('');
     const [cpf, setCpf] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
-    const [ddd, setDdd] = useState('');
     const [telefone, setTelefone] = useState('');
-    
+
     // Função para formatar a data com "/" ao digitar
     const handleDataNascimentoChange = (text) => {
-        // Remover tudo que não for número
         const cleaned = text.replace(/[^\d]/g, '');
-        
         let formatted = cleaned;
 
-        // Inserir "/" no formato DD/MM/AAAA
         if (cleaned.length >= 5) {
             formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
         } else if (cleaned.length >= 3) {
             formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
         }
 
-        // Atualiza o campo com a formatação
         setDataNascimento(formatted);
     };
 
-    // Função para converter a data do formato DD/MM/AAAA para YYYY-MM-DD
+    // Função para formatar o CPF com pontos e traço
+    const handleCpfChange = (text) => {
+        const cleaned = text.replace(/[^\d]/g, '');
+        let formatted = cleaned;
+
+        if (cleaned.length >= 11) {
+            formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`;
+        } else if (cleaned.length >= 7) {
+            formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}`;
+        } else if (cleaned.length >= 4) {
+            formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}`;
+        } else if (cleaned.length >= 3) {
+            formatted = `${cleaned.slice(0, 3)}`;
+        }
+
+        setCpf(formatted);
+    };
+
+    // Função para formatar telefone e DDD
+    const handleTelefoneChange = (text) => {
+        const cleaned = text.replace(/[^\d]/g, '');
+        let formatted = cleaned;
+
+        if (cleaned.length === 10) { // (DDD) xxxxx-xxxx
+            formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+        } else if (cleaned.length === 8) { // (DDD) xxxx-xxxx
+            formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+        } else if (cleaned.length >= 2) {
+            formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+        } else if (cleaned.length >= 1) {
+            formatted = `(${cleaned.slice(0, 2)})`;
+        }
+
+        setTelefone(formatted);
+    };
+
     const formatarDataParaEnvio = (data) => {
         const partes = data.split('/');
         if (partes.length === 3) {
@@ -43,20 +73,45 @@ export default function InfoForm({ route, navigation }) {
         return data; // Retorna a data sem modificação se não estiver no formato esperado
     };
 
+    const validarCpf = (cpf) => {
+        const cleaned = cpf.replace(/[^\d]/g, '');
+        
+        // Verifica se o CPF tem 11 dígitos
+        if (cleaned.length !== 11 || /^(\d)\1{10}$/.test(cleaned)) {
+            return false; // CPF inválido
+        }
 
+        // Cálculo dos dígitos verificadores
+        const calcularDigito = (cpf, pesoInicial) => {
+            let soma = 0;
+            let peso = pesoInicial;
+
+            for (let i = 0; i < cpf.length; i++) {
+                soma += parseInt(cpf[i]) * peso;
+                peso--;
+            }
+
+            const resto = soma % 11;
+            return resto < 2 ? 0 : 11 - resto;
+        };
+
+        const primeiroDigito = calcularDigito(cleaned.slice(0, 9), 10);
+        const segundoDigito = calcularDigito(cleaned.slice(0, 10), 11);
+
+        return cleaned[9] == primeiroDigito && cleaned[10] == segundoDigito;
+    };
 
     const handleSubmitInfo = async () => {
         const dataFormatada = formatarDataParaEnvio(dataNascimento);
-    
+
         const userInfo = {
             nome: nome,
             sobrenome: sobrenome,
             cpf: cpf,
             data_nascimento: dataFormatada,
-            ddd: ddd,
-            telefone: telefone
+            telefone: telefone.replace(/[^\d]/g, ''), // Passar somente os dígitos
         };
-    
+
         // Verifica se todos os campos estão preenchidos
         for (const key in userInfo) {
             if (userInfo[key] === undefined || userInfo[key] === '') {
@@ -64,7 +119,12 @@ export default function InfoForm({ route, navigation }) {
                 return; // Retorna sem fazer a requisição
             }
         }
-    
+
+        if (!validarCpf(cpf)) {
+            console.error("CPF inválido.");
+            return;
+        }
+
         try {
             const response = await fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
                 method: 'POST',
@@ -77,7 +137,6 @@ export default function InfoForm({ route, navigation }) {
             const data = await response.json();
             console.log("Informações salvas com sucesso:", data);
             
-            // Verifica se é o primeiro login
             const firstLogin = await AsyncStorage.getItem('firstLogin');
             if (firstLogin === null || firstLogin === 'false') {
                 await AsyncStorage.setItem('firstLogin', 'true');
@@ -91,8 +150,6 @@ export default function InfoForm({ route, navigation }) {
             console.error("Erro ao salvar informações:", error);
         }
     };
-
-    
 
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -123,10 +180,10 @@ export default function InfoForm({ route, navigation }) {
                     <TextInput
                         style={styles.input}
                         value={cpf}
-                        onChangeText={setCpf}
+                        onChangeText={handleCpfChange}
                         placeholder="CPF"
                         keyboardType="numeric"
-                        maxLength={11}
+                        maxLength={14} // CPF formatado
                     />
                 </View>
 
@@ -142,28 +199,15 @@ export default function InfoForm({ route, navigation }) {
                 </View>
             </View>
 
-            <View style={styles.inputGroup}>
-                <View style={styles.inputDDDContainer}>
-                    <TextInput
-                        style={styles.input}
-                        value={ddd}
-                        onChangeText={setDdd}
-                        placeholder="DDD"
-                        keyboardType="numeric"
-                        maxLength={2}
-                    />
-                </View>
-
-                <View style={styles.inputTelefoneContainer}>
-                    <TextInput
-                        style={styles.input}
-                        value={telefone}
-                        onChangeText={setTelefone}
-                        placeholder="Telefone"
-                        keyboardType="numeric"
-                        maxLength={9}
-                    />
-                </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    value={telefone}
+                    onChangeText={handleTelefoneChange}
+                    placeholder="Telefone"
+                    keyboardType="numeric"
+                    maxLength={15} // Para (DDD) xxxx-xxxx
+                />
             </View>
 
             <TouchableOpacity style={styles.botaoContinuar} onPress={handleSubmitInfo}>
@@ -209,7 +253,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     inputCPFContainer: {
-        width: width * 0.45,
+        width: width * 0.35,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
         paddingHorizontal: 20,
@@ -236,33 +280,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
-    inputDDDContainer: {
-        width: width * 0.2,
-        backgroundColor: theme.colors.white,
-        borderRadius: 16,
-        paddingHorizontal: 20,
-        height: 50,
-        borderColor: '#E0E0E0',
-        borderWidth: 1,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    inputTelefoneContainer: {
-        width: width * 0.55,
-        backgroundColor: theme.colors.white,
-        borderRadius: 16,
-        paddingHorizontal: 20,
-        height: 50,
-        borderColor: '#E0E0E0',
-        borderWidth: 1,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+    input: {
+        fontSize: 18, // Aumenta o tamanho da fonte
     },
     botaoContinuar: {
         backgroundColor: theme.colors.primary,
