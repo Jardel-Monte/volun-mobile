@@ -30,7 +30,7 @@ export default function InfoForm({ route, navigation }) {
 
     // Função para formatar o CPF com pontos e traço
     const handleCpfChange = (text) => {
-        const cleaned = text.replace(/[^\d]/g, '');
+        const cleaned = text.replace(/[^\d]/g, '');  // Remove tudo que não é número
         let formatted = cleaned;
 
         if (cleaned.length >= 11) {
@@ -48,17 +48,17 @@ export default function InfoForm({ route, navigation }) {
 
     // Função para formatar telefone e DDD
     const handleTelefoneChange = (text) => {
-        const cleaned = text.replace(/[^\d]/g, '');
+        const cleaned = text.replace(/[^\d]/g, ''); // Remove tudo que não é número
         let formatted = cleaned;
 
-        if (cleaned.length === 10) { // (DDD) xxxxx-xxxx
+        if (cleaned.length === 11) { // (DDD) xxxxx-xxxx, com o nono dígito
             formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
-        } else if (cleaned.length === 8) { // (DDD) xxxx-xxxx
-            formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
-        } else if (cleaned.length >= 2) {
+        } else if (cleaned.length === 10) { // (DDD) xxxx-xxxx, sem o nono dígito
+            formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6, 10)}`;
+        } else if (cleaned.length > 2) { // Formatação enquanto o usuário digita
             formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
-        } else if (cleaned.length >= 1) {
-            formatted = `(${cleaned.slice(0, 2)})`;
+        } else if (cleaned.length > 0) {
+            formatted = `(${cleaned}`;
         }
 
         setTelefone(formatted);
@@ -183,7 +183,7 @@ export default function InfoForm({ route, navigation }) {
                         onChangeText={handleCpfChange}
                         placeholder="CPF"
                         keyboardType="numeric"
-                        maxLength={14} // CPF formatado
+                        maxLength={14} // Permite apenas os dígitos numéricos
                     />
                 </View>
 
@@ -253,9 +253,10 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     inputCPFContainer: {
-        width: width * 0.35,
+        width: width * 0.40,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
+        marginRight: 15,
         paddingHorizontal: 20,
         height: 50,
         borderColor: '#E0E0E0',

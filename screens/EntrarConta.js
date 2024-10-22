@@ -14,7 +14,7 @@ const { width } = Dimensions.get('window');
 // Função para verificar se o UID existe na tabela 'usuarios'
 async function verificarUsuario(uid) {
     try {
-        const response = await axios.get(`https:\\volun-api-eight.vercel.app/usuarios/{uid}`);
+        const response = await axios.get(`https:\\volun-api-eight.vercel.app/usuarios/${uid}`);
         return response.data; // Espera-se que os dados retornem um array de usuários
     } catch (error) {
         console.error("Erro ao buscar usuário:", error);
