@@ -12,6 +12,7 @@ export default function InfoForm({ route, navigation }) {
     const [sobrenome, setSobrenome] = useState('');
     const [cpf, setCpf] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
+    const [ddd, setDdd] = useState('');
     const [telefone, setTelefone] = useState('');
 
     // Função para formatar a data com "/" ao digitar
@@ -30,17 +31,17 @@ export default function InfoForm({ route, navigation }) {
 
     // Função para formatar o CPF com pontos e traço
     const handleCpfChange = (text) => {
-        const cleaned = text.replace(/[^\d]/g, '');  // Remove tudo que não é número
-        let formatted = cleaned;
+        const cleaned = text.replace(/[^\d]/g, '');
+        let formatted = '';
 
-        if (cleaned.length >= 11) {
+        if (cleaned.length > 9) {
             formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`;
-        } else if (cleaned.length >= 7) {
+        } else if (cleaned.length > 6) {
             formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}`;
-        } else if (cleaned.length >= 4) {
+        } else if (cleaned.length > 3) {
             formatted = `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}`;
-        } else if (cleaned.length >= 3) {
-            formatted = `${cleaned.slice(0, 3)}`;
+        } else {
+            formatted = cleaned;
         }
 
         setCpf(formatted);
@@ -48,14 +49,16 @@ export default function InfoForm({ route, navigation }) {
 
     // Função para formatar telefone e DDD
     const handleTelefoneChange = (text) => {
-        const cleaned = text.replace(/[^\d]/g, ''); // Remove tudo que não é número
+        const cleaned = text.replace(/[^\d]/g, '');
         let formatted = cleaned;
 
-        if (cleaned.length === 11) { // (DDD) xxxxx-xxxx, com o nono dígito
+        if (cleaned.length >= 11) {
+            setDdd(cleaned.slice(0, 2)); // Atualiza o DDD
             formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
-        } else if (cleaned.length === 10) { // (DDD) xxxx-xxxx, sem o nono dígito
+        } else if (cleaned.length === 10) {
+            setDdd(cleaned.slice(0, 2)); // Atualiza o DDD
             formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6, 10)}`;
-        } else if (cleaned.length > 2) { // Formatação enquanto o usuário digita
+        } else if (cleaned.length > 2) {
             formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
         } else if (cleaned.length > 0) {
             formatted = `(${cleaned}`;
@@ -68,20 +71,18 @@ export default function InfoForm({ route, navigation }) {
         const partes = data.split('/');
         if (partes.length === 3) {
             const [dia, mes, ano] = partes;
-            return `${ano}-${mes}-${dia}`; // Retorna a data no formato YYYY-MM-DD
+            return `${ano}-${mes}-${dia}`;
         }
-        return data; // Retorna a data sem modificação se não estiver no formato esperado
+        return data;
     };
 
     const validarCpf = (cpf) => {
         const cleaned = cpf.replace(/[^\d]/g, '');
-        
-        // Verifica se o CPF tem 11 dígitos
+
         if (cleaned.length !== 11 || /^(\d)\1{10}$/.test(cleaned)) {
-            return false; // CPF inválido
+            return false;
         }
 
-        // Cálculo dos dígitos verificadores
         const calcularDigito = (cpf, pesoInicial) => {
             let soma = 0;
             let peso = pesoInicial;
@@ -109,14 +110,14 @@ export default function InfoForm({ route, navigation }) {
             sobrenome: sobrenome,
             cpf: cpf,
             data_nascimento: dataFormatada,
-            telefone: telefone.replace(/[^\d]/g, ''), // Passar somente os dígitos
+            telefone: telefone.slice(5), // Remove o DDD e mantém apenas o número
+            ddd: ddd, // Envia o DDD separado
         };
 
-        // Verifica se todos os campos estão preenchidos
         for (const key in userInfo) {
             if (userInfo[key] === undefined || userInfo[key] === '') {
                 console.error(`Campo ${key} não pode ser vazio ou indefinido.`);
-                return; // Retorna sem fazer a requisição
+                return;
             }
         }
 
@@ -126,17 +127,17 @@ export default function InfoForm({ route, navigation }) {
         }
 
         try {
-            const response = await fetch(`https://volun-api-eight.vercel.app/usuarios/${uid}/info`, {
+            const response = await fetch('https://volun-api-eight.vercel.app/usuarios/' + uid + '/info', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(userInfo),
             });
-            
+
             const data = await response.json();
             console.log("Informações salvas com sucesso:", data);
-            
+
             const firstLogin = await AsyncStorage.getItem('firstLogin');
             if (firstLogin === null || firstLogin === 'false') {
                 await AsyncStorage.setItem('firstLogin', 'true');
@@ -183,7 +184,7 @@ export default function InfoForm({ route, navigation }) {
                         onChangeText={handleCpfChange}
                         placeholder="CPF"
                         keyboardType="numeric"
-                        maxLength={14} // Permite apenas os dígitos numéricos
+                        maxLength={14}
                     />
                 </View>
 
@@ -192,7 +193,7 @@ export default function InfoForm({ route, navigation }) {
                         style={styles.input}
                         value={dataNascimento}
                         onChangeText={handleDataNascimentoChange}
-                        placeholder="Data de Nascimento"
+                        placeholder="Data Nasc."
                         keyboardType="numeric"
                         maxLength={10}
                     />
@@ -206,7 +207,7 @@ export default function InfoForm({ route, navigation }) {
                     onChangeText={handleTelefoneChange}
                     placeholder="Telefone"
                     keyboardType="numeric"
-                    maxLength={15} // Para (DDD) xxxx-xxxx
+                    maxLength={15}
                 />
             </View>
 
@@ -249,11 +250,12 @@ const styles = StyleSheet.create({
     },
     inputGroup: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 15,
     },
     inputCPFContainer: {
-        width: width * 0.40,
+        width: width * 0.41,
         backgroundColor: theme.colors.white,
         borderRadius: 16,
         marginRight: 15,
@@ -282,7 +284,10 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     input: {
-        fontSize: 18, // Aumenta o tamanho da fonte
+        fontSize: 18,
+        textAlignVertical: 'center',
+        height: '100%',
+        paddingVertical: 10,
     },
     botaoContinuar: {
         backgroundColor: theme.colors.primary,

@@ -14,7 +14,7 @@ const { width } = Dimensions.get('window');
 // Função para verificar se o UID existe na tabela 'usuarios'
 async function verificarUsuario(uid) {
     try {
-        const response = await axios.get(`https:\\volun-api-eight.vercel.app/usuarios/${uid}`);
+        const response = await axios.get('https://volun-api-eight.vercel.app/usuarios/' + uid);
         return response.data; // Espera-se que os dados retornem um array de usuários
     } catch (error) {
         console.error("Erro ao buscar usuário:", error);
@@ -22,10 +22,10 @@ async function verificarUsuario(uid) {
     }
 }
 
-export default function EntrarConta( { navigation } ) {
+export default function EntrarConta({ navigation }) {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
-    const [senhaVisivel, setSenhaVisivel] = useState(false);  // Controle de visibilidade
+    const [senhaVisivel, setSenhaVisivel] = useState(false); // Controle de visibilidade
 
     // Função para lidar com o login
     const handleLogin = async () => {
@@ -37,6 +37,7 @@ export default function EntrarConta( { navigation } ) {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, senha);
             console.log('Usuário autenticado com sucesso:', userCredential.user);
+            console.log('UID do usuário:', uid);
 
             const uid = userCredential.user.uid;
 
@@ -86,7 +87,7 @@ export default function EntrarConta( { navigation } ) {
                     value={senha}
                     onChangeText={setSenha}
                     placeholder="Senha"
-                    secureTextEntry={!senhaVisivel}  // Alterando visibilidade
+                    secureTextEntry={!senhaVisivel} // Alterando visibilidade
                     autoCapitalize='none'
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
