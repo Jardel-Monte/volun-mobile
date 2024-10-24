@@ -44,7 +44,7 @@ export default function EntrarConta({ navigation }) {
             // Verificar se o usuário já está cadastrado na tabela 'usuarios' do MongoDB
             const usuario = await verificarUsuario(uid);
 
-            if (usuario && usuario.length > 0) {
+            if (usuario) {
                 // Se o usuário já existe, navegue para a HomeScreen
                 navigation.navigate('HomeScreen');
             } else {
