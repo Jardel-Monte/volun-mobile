@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+//import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useFonts } from './hooks/useFonts';
 import SplashScreen from './screens/SplashScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -19,12 +19,12 @@ const Stack = createStackNavigator();
 export default function App() {
   const fontsLoaded = useFonts();
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: '276715044615-plaeq5a4ckgbct3on37roeer5fhlfvcd.apps.googleusercontent.com',
-      offlineAccess: true,
-    });
-  }, []);
+//  useEffect(() => {
+//    GoogleSignin.configure({
+//      webClientId: '276715044615-plaeq5a4ckgbct3on37roeer5fhlfvcd.apps.googleusercontent.com',
+//      offlineAccess: true,
+//    });
+//  }, []);
 
   if (!fontsLoaded) {
     return <SplashScreen />;
