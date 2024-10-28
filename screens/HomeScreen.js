@@ -48,9 +48,8 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.welcomeText}>Bem-vindo à Home Screen!</Text>
             <Button title="Sair" onPress={handleLogout} />
-            
+
             <ScrollView style={styles.scrollContainer}>
                 {eventos.length > 0 ? (
                     eventos.map((evento) => {
