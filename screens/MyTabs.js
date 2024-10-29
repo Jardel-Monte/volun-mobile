@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Material Icons
 import HomeScreen from './HomeScreen';
 import ArtigosScreen from './ArtigosScreen';
 import DesejosScreen from './DesejosScreen';
@@ -18,36 +18,35 @@ function MyTabs() {
 
           switch (route.name) {
             case 'Início':
-              iconName = 'home-outline';
+              iconName = 'home';
               break;
             case 'Artigos':
-              iconName = 'newspaper-outline';
+              iconName = 'article';
               break;
             case 'Desejos':
-              iconName = 'heart-outline';
+              iconName = 'favorite';
               break;
             case 'Notificações':
-              iconName = 'notifications-outline';
+              iconName = 'notifications';
               break;
             case 'Buscar':
-              iconName = 'search-outline';
+              iconName = 'search';
               break;
             default:
-              iconName = 'circle-outline';
+              iconName = 'circle';
               break;
           }
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-      })}
-      
-      screenOptions={{
-        tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: 'darkblue',
+        tabBarInactiveTintColor: 'tomato',
         tabBarStyle: {
-          display: 'flex',
+          height: 70, 
+          paddingBottom: 16, 
+          paddingTop: 16,
         },
-      }}
+      })}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
       <Tab.Screen name="Artigos" component={ArtigosScreen} />
