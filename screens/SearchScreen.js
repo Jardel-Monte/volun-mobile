@@ -1,13 +1,18 @@
-// screens/SearchScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import TagCard from '../componentes/TagCard';
 
 export default function SearchScreen() {
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
 
   const handleSearch = () => {
-    // Lógica de busca aqui
     console.log('Buscando por:', searchQuery);
+  };
+
+  const handleSelectCategory = (categoria) => {
+    setCategoriaSelecionada(categoria);
+    console.log('Categoria selecionada:', categoria);
   };
 
   return (
@@ -19,7 +24,17 @@ export default function SearchScreen() {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Buscar" onPress={handleSearch} />
+      <TouchableOpacity style={styles.button} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Buscar</Text>
+      </TouchableOpacity>
+      <View>
+        <TagCard selectCategory={handleSelectCategory} />
+        {categoriaSelecionada && (
+          <Text style={styles.selectedCategory}>
+            Categoria selecionada: {categoriaSelecionada}
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -42,5 +57,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     width: '100%',
+  },
+  button: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  selectedCategory: {
+    marginTop: 16,
+    fontSize: 16,
+    color: 'green',
   },
 });
