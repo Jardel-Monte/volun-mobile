@@ -35,6 +35,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5,
         shadowOffset: { width: 0, height: 3 },
+        elevation: 1,
+        overflow: 'hidden',
     },
     imagemEvento: {
         width: '100%',
