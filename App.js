@@ -10,6 +10,7 @@ import CriarConta from './screens/CriarConta';
 import EntrarConta from './screens/EntrarConta';
 import CriarContaForm from './screens/CriarContaForm';
 import InfoForm from './screens/InfoForm';
+import EventoInfo from './screens/EventoInfo';
 import BemVindo from './screens/BemVindo';
 import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
@@ -66,6 +67,11 @@ export default function App() {
         <Stack.Screen
           name='HomeScreen'
           component={MyTabs}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='EventoInfo'
+          component={EventoInfo}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
