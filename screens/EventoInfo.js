@@ -43,6 +43,16 @@ const EventoInfo = ({ route }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={{ uri: evento.imagem }} style={styles.imagemEvento} />
       <Text style={styles.title}>{evento.titulo}</Text>
+      {evento.tags && evento.tags.length > 0 && (
+        <View style={styles.tagsContainer}>
+          {evento.tags.map((tag, index) => (
+            <View key={index} style={styles.tagBox}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
       <Text style={styles.organization}>{evento.ong_id?.nome}</Text>
       <Text style={styles.address}>
         {endereco?.logradouro}, {endereco?.cidade} - {endereco?.estado}
@@ -80,6 +90,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'justify',
     marginBottom: 10,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  tagBox: {
+    backgroundColor: '#007BFF', // Escolha uma cor que combine com o tema
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  tagText: {
+    fontSize: 14,
+    color: '#fff', // Cor do texto branco para contrastar com o fundo
   },
   organization: {
     fontSize: 18,

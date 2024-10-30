@@ -6,7 +6,7 @@ export default function EventoCard({ evento }) {
     const navigation = useNavigation();
 
     if (!evento) {
-        return null; // Se evento não existir, retorna null
+        return null;
     }
 
     const { _id, titulo, imagem, endereco } = evento;
