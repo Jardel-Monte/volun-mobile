@@ -3,16 +3,18 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function EventoCard({ evento }) {
+    const navigation = useNavigation();
+
     if (!evento) {
-        return null; // Se evento não existir, retorna null
+        return null;
     }
 
-    const { titulo, imagem, endereco } = evento;
+    const { _id, titulo, imagem, endereco } = evento;
 
     return (
         <TouchableOpacity 
             style={styles.card}
-            // onPress={() => navigation.navigate('DetalhesEvento', { eventoId: _id })}
+            onPress={() => navigation.navigate('EventoInfo', { eventoId: _id , endereco })}
         >
             <Image source={{ uri: imagem }} style={styles.imagemEvento} />
             <View style={styles.infoContainer}>
@@ -35,6 +37,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 5,
         shadowOffset: { width: 0, height: 3 },
+        elevation: 1,
+        overflow: 'hidden',
     },
     imagemEvento: {
         width: '100%',

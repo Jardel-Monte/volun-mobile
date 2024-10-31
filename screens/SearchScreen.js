@@ -27,7 +27,9 @@ export default function SearchScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSearch}>
         <Text style={styles.buttonText}>Buscar</Text>
       </TouchableOpacity>
-      <View>
+      <View
+        style={styles.categoriaContainer}
+      >
         <TagCard selectCategory={handleSelectCategory} />
         {categoriaSelecionada && (
           <Text style={styles.selectedCategory}>
@@ -45,16 +47,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    height: 500,
   },
   title: {
     fontSize: 24,
     marginBottom: 16,
   },
   input: {
+    backgroundColor: '#E3E7F0',
+    position: "relative",
     height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 16,
+    marginVertical: 16,
     paddingHorizontal: 8,
     width: '100%',
   },
@@ -69,8 +72,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   selectedCategory: {
-    marginTop: 16,
+    marginVertical: 20,
     fontSize: 16,
     color: 'green',
   },
+  categoriaContainer: {
+    textAlign: 'center',
+    justifyContent: 'center',
+    width: 400,
+    height: 400,
+    marginHorizontal: 20,
+    marginVertical: 20,
+  }
 });

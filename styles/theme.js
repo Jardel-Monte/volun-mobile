@@ -10,15 +10,15 @@ export const theme = {
 
 export const globalStyles = StyleSheet.create({
   textRegular: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontWeight: '400',
   },
   textSemiBold: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontWeight: '600',
   },
   textBold: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontWeight: '1000',
   },
   underline: {
