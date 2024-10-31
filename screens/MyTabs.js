@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Material Icons
 import HomeScreen from './HomeScreen';
@@ -13,7 +14,7 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
+        tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
           switch (route.name) {
@@ -37,15 +38,25 @@ function MyTabs() {
               break;
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return (
+            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
+              <Icon name={iconName} size={size} color={color} />
+            </View>
+          );
         },
-        tabBarActiveTintColor: 'darkblue',
+        tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: 'tomato',
         tabBarStyle: {
-          height: 70, 
-          paddingBottom: 16, 
-          paddingTop: 16,
+          height: 64,
+          paddingBottom: 0,
+          paddingTop: 0,
+          marginBottom: 5,
+          backgroundColor: 'white', // Set the tab bar background color to white
+          borderRadius: 64,
+          marginLeft: 3,
+          marginRight: 3,
         },
+        tabBarLabel: () => null, // Hide the default tab label
       })}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
@@ -56,5 +67,17 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    padding: 6,
+  },
+  activeIconContainer: {
+    backgroundColor: "rgba(57, 66, 134, 0.88)",
+  },
+});
 
 export default MyTabs;
