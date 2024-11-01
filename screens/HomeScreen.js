@@ -37,7 +37,6 @@ export default function HomeScreen({ navigation }) {
                 });
 
                 setEventos(eventosComEndereco);
-                console.log('Eventos com Endereço:', eventosComEndereco); // Adicionando log para verificar dados
             } catch (error) {
                 console.error('Erro ao carregar eventos e endereços:', error);
             }

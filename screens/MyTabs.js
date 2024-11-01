@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Material Icons
 import HomeScreen from './HomeScreen';
-import ArtigosScreen from './ArtigosScreen';
+import OrgScreen from './OrgScreen';
 import DesejosScreen from './DesejosScreen';
 import NotificacoesScreen from './NotificacoesScreen';
 import SearchScreen from './SearchScreen';
@@ -60,7 +60,7 @@ function MyTabs() {
       })}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
-      <Tab.Screen name="Artigos" component={ArtigosScreen} />
+      <Tab.Screen name="Artigos" component={OrgScreen} />
       <Tab.Screen name="Desejos" component={DesejosScreen} />
       <Tab.Screen name="Notificações" component={NotificacoesScreen} />
       <Tab.Screen name="Buscar" component={SearchScreen} />

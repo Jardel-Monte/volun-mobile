@@ -15,7 +15,6 @@ export default function LoginScreen({ navigation }) {
         resizeMode="contain"
       />
       <View style={styles.botoesAuthContainer}>
-        {/* Passe o navigation para BotaoAuth */}
         <BotaoAuth icon={require('../assets/images/google.png')} navigation={navigation} />
         <BotaoAuth icon={require('../assets/images/facebook.png')} navigation={navigation} />
       </View>
