@@ -1,13 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import TagCard from '../componentes/TagCard';
+import algoliasearch from 'algoliasearch';
+import algoliaClient from '../services/algolia-config.js'
+import { se } from 'date-fns/locale';
+
+const index = algoliaClient.initIndex("eventos");
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
 
-  const handleSearch = () => {
-    console.log('Buscando por:', searchQuery);
+  const handleSearch = async (eventCategory) => {
+    try {
+      setLoading(true);
+      const {categoria} = eventCategory;
+
+      const algoliaResponse = await index.search(searchQuery || "", {
+        filters: [
+          categoria ? `tags:${categoria}` : "",
+        ].filter(Boolean).join(" AND ")
+      });
+    }
+    catch (error){
+      console.error("Erro ao buscar eventos:", error);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleSelectCategory = (categoria) => {
@@ -16,7 +37,7 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} >
       <Text style={styles.title}>Buscar</Text>
       <TextInput
         style={styles.input}
@@ -36,6 +57,7 @@ export default function SearchScreen() {
             Categoria selecionada: {categoriaSelecionada}
           </Text>
         )}
+        
       </View>
     </View>
   );
