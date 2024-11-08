@@ -10,7 +10,7 @@ export default function TagCard({ selectCategory }) {
         { id: 5, title: "Meio-Ambiente" },
         { id: 6, title: "Alimentação" },
         { id: 7, title: "Esporte"},
-        { id: 8, title: "Cassino"}
+        { id: 8, title: "Violência"}
     ];
 
     return (

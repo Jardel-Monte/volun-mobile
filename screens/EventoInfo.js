@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { format } from 'date-fns';
 
-export default function EventoInfo(){
+const EventoInfo = ({ route }) => {
   const { eventoId, endereco } = route.params;
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -147,4 +147,5 @@ const styles = StyleSheet.create({
   },
 });
 
+export default EventoInfo;
 
