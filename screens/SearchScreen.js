@@ -1,35 +1,64 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList } from 'react-native';
 import TagCard from '../componentes/TagCard';
-import algoliasearch from 'algoliasearch';
-import algoliaClient from '../services/algolia-config.js'
-import { se } from 'date-fns/locale';
+import algoliaClient from '../services/algolia-config.js';
 
 const index = algoliaClient.initIndex("eventos");
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
+  const [eventos, setEventos] = useState([]); // Estado para armazenar os eventos buscados
 
-  const handleSearch = async (eventCategory) => {
+  const handleSearch = async () => {
     try {
       setLoading(true);
-      const {categoria} = eventCategory;
+      const { estadoSelecionado, categoria, cidade, searchQuery } = filtros;
 
+      // Realiza a busca no Algolia aplicando apenas os filtros preenchidos
       const algoliaResponse = await index.search(searchQuery || "", {
-        filters: [
-          categoria ? `tags:${categoria}` : "",
-        ].filter(Boolean).join(" AND ")
+          filters: [
+              categoria ? `tags:${categoria}` : ""
+          ].filter(Boolean).join(" AND "),
       });
-    }
-    catch (error){
+
+      // Processa os resultados do Algolia
+      const eventosAlgolia = algoliaResponse.hits.map(hit => ({
+          ...hit,
+          categoria: "Carregando..." // Endereço será buscado depois
+      }));
+
+      // Para cada evento com objectID válido, busca o endereço no MongoDB
+      const eventosComEnderecos = await Promise.all(
+          eventosAlgolia.map(async (evento) => {
+              if (!evento.objectID) return evento; // Ignora se objectID estiver indefinido
+
+              try {
+                  const enderecoResponse = await fetch(
+                      `https://volun-api-eight.vercel.app/endereco/evento/${evento.objectID}`
+                  );
+                  const enderecoData = await enderecoResponse.json();
+
+                  const endereco = Array.isArray(enderecoData) && enderecoData.length > 0
+                      ? `${enderecoData[0].cidade}, ${enderecoData[0].estado}`
+                      : "Endereço indefinido";
+
+                  return { ...evento, endereco };
+              } catch {
+                  return { ...evento, endereco: "Endereço indefinido" };
+              }
+          })
+      );
+
+      setEventos(eventosComEnderecos);
+  } catch (error) {
       console.error("Erro ao buscar eventos:", error);
-    }
-    finally {
+  } finally {
       setLoading(false);
-    }
-  };
+      setCurrentPage(1);
+  }
+};
 
   const handleSelectCategory = (categoria) => {
     setCategoriaSelecionada(categoria);
@@ -37,7 +66,7 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       <Text style={styles.title}>Buscar</Text>
       <TextInput
         style={styles.input}
@@ -46,19 +75,28 @@ export default function SearchScreen() {
         onChangeText={setSearchQuery}
       />
       <TouchableOpacity style={styles.button} onPress={handleSearch}>
-        <Text style={styles.buttonText}>Buscar</Text>
+        <Text style={styles.buttonText}>{loading ? "Buscando..." : "Buscar"}</Text>
       </TouchableOpacity>
-      <View
-        style={styles.categoriaContainer}
-      >
+      <View style={styles.categoriaContainer}>
         <TagCard selectCategory={handleSelectCategory} />
         {categoriaSelecionada && (
           <Text style={styles.selectedCategory}>
             Categoria selecionada: {categoriaSelecionada}
           </Text>
         )}
-        
       </View>
+
+      {/* Exibir eventos */}
+      <FlatList
+        data={eventos}
+        keyExtractor={(item) => item.objectID}
+        renderItem={({ item }) => (
+          <View style={styles.eventItem}>
+            <Text style={styles.eventTitle}>{item.title}</Text>
+            <Text>{item.endereco}</Text>
+          </View>
+        )}
+      />
     </View>
   );
 }
