@@ -15,6 +15,7 @@ import Perfil from './screens/Perfil';
 import BemVindo from './screens/BemVindo';
 import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
+import CriarEventos from './screens/CriarEventos';
 
 const Stack = createStackNavigator();
 
@@ -80,11 +81,11 @@ export default function App() {
           component={Perfil}
           options={{ headerShown: false }}
         />
-        {/* <Stack.Screen
-          name='CriacaoEvento'
-          component={???}
+        <Stack.Screen
+          name='CriarEventoS'
+          component={CriarEventos}
           options={{ headerShown: false }}
-        /> */}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

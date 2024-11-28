@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function OrgScreen() {
     
-    // const navigation = useNavigation();
+    const navigation = useNavigation();
 
     const handleNavigate = () => {
-        // For example: navigation.navigate('CreateOrganization');
+        navigation.navigate('CriarEventos');
         console.log('navegar para página de criar ORG.');
     };
 
@@ -24,7 +24,7 @@ export default function OrgScreen() {
                 seus próprios Eventos e interaja com a Comunidade já!
             </Text>
             <TouchableOpacity style={styles.button} onPress={handleNavigate}>
-                <Text style={styles.buttonText}>Criar Organização</Text>
+                <Text style={styles.buttonText}>Criar evento</Text>
             </TouchableOpacity>
         </View>
     );
