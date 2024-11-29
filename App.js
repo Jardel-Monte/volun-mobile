@@ -11,7 +11,7 @@ import EntrarConta from './screens/EntrarConta';
 import CriarContaForm from './screens/CriarContaForm';
 import InfoForm from './screens/InfoForm';
 import EventoInfo from './screens/EventoInfo';
-import Perfil from './screens/Perfil';
+import PerfilScreen from './screens/PerfilScreen';
 import BemVindo from './screens/BemVindo';
 import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
@@ -77,8 +77,8 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='Perfil'
-          component={Perfil}
+          name='PerfilScreen'
+          component={PerfilScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
