@@ -4,11 +4,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { Chip } from 'react-native-paper';
 import axios from 'axios';
-
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
+import uuid from 'react-native-uuid'; // Para gerar nomes únicos de arquivos (instale com `npm install react-native-uuid`)
 
 const CriarEventos = () => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [descricao2, setDescricao2] = useState('');
   const [tags, setTags] = useState('');
   const [vagaLimite, setVagaLimite] = useState('');
   const [logradouro, setLogradouro] = useState('');
@@ -26,6 +28,8 @@ const CriarEventos = () => {
   const [availableTags, setAvailableTags] = useState([
     'Solidariedade', 'Educação', 'Saúde', 'Meio Ambiente', 'Cultura', 'Voluntariado', 'Tecnologia', // Tags disponíveis
   ]);
+
+  const storage = getStorage(); // Inicializa o Firebase Storage
 
   const buscarCep = async () => {
     if (!cep) {
@@ -142,54 +146,126 @@ const CriarEventos = () => {
 
   const handleSave = async () => {
     try {
-      const formattedTags = tags.split(',').map(tag => tag.trim());
 
-      const eventoData = {
-        titulo,
-        descricao,
-        tags: formattedTags,
-        dataInicio,
-        dataFinal,
-        imagem: selectedImage,
-        vaga_limite: parseInt(vagaLimite),
-      };
+      if (!selectedImage) {
+        alert("Selecione uma imagem antes de criar o evento.");
+        return;
+      }
+  
+      // 1. Fazer o upload da imagem para o Firebase Storage
+      const imageName = `${uuid.v4()}.jpg`; // Nome único para a imagem
+      const imageRef = ref(storage, `eventos/${imageName}`);
+  
+      const response = await fetch(selectedImage);
+      const blob = await response.blob();
+  
+      console.log("Fazendo upload da imagem...");
+      await uploadBytes(imageRef, blob);
+  
+      // 2. Obter a URL da imagem
+      const imageUrl = await getDownloadURL(imageRef);
+      console.log("URL da imagem carregada:", imageUrl);
 
+      // Variável para ID da ONG
+      const ongId = "67164394514786093e3870fd";
+  
+      // Dados para criação do endereço
       const enderecoData = {
-        logradouro,
-        bairro,
-        cep,
-        cidade,
-        estado,
-        numero: parseInt(numero),
+        logradouro: logradouro, // Rua
+        bairro: bairro,
+        cep: cep,
+        cidade: cidade,
+        estado: estado,
+        numero: numero,
       };
-
-      const responseEvento = await fetch('https://volun-api-eight.vercel.app/eventos', {
+  
+      console.log("Dados do endereço a serem enviados:", enderecoData);
+  
+      // 1. Criar endereço
+      const enderecoResponse = await fetch('https://volun-api-eight.vercel.app/endereco', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(enderecoData),
+      });
+  
+      if (!enderecoResponse.ok) {
+        throw new Error('Erro ao criar endereço.');
+      }
+  
+      // Resposta da API para criação do endereço
+      const enderecoResponseText = await enderecoResponse.text();
+      console.log("Resposta bruta da API para criação do endereço:", enderecoResponseText);
+  
+      let enderecoCriado;
+      try {
+        // Tenta converter para JSON
+        enderecoCriado = JSON.parse(enderecoResponseText);
+      } catch (e) {
+        // Se não for JSON, trata como uma mensagem simples
+        enderecoCriado = { endereco: { _id: enderecoResponseText } };
+      }
+  
+      console.log("Resposta da API para criação do endereço:", enderecoCriado);
+  
+      const enderecoId = enderecoCriado.endereco?._id;
+  
+      if (!enderecoId) {
+        throw new Error('O ID do endereço não foi encontrado na resposta da API.');
+      }
+  
+      // Função para converter datas no formato "dd/MM/yyyy HH:mm" para ISO
+      const convertToISO = (dateString) => {
+        const [datePart, timePart] = dateString.split(" ");
+        const [day, month, year] = datePart.split("/").map(Number);
+        const [hours, minutes] = timePart.split(":").map(Number);
+        return new Date(year, month - 1, day, hours, minutes).toISOString();
+      };
+  
+      const dataInicioISO = convertToISO(dataInicio);
+      const dataFimISO = convertToISO(dataFinal);
+  
+      // Dados para criação do evento
+      const eventoData = {
+        titulo: titulo,
+        descricao: descricao,
+        descricao_2: descricao2,
+        tags: selectedTags,
+        data_inicio: dataInicioISO,
+        data_fim: dataFimISO,
+        vaga_limite: Number(vagaLimite),
+        ong_id: ongId,
+        endereco_id: enderecoId,
+        imagem: imageUrl,
+      };
+  
+      console.log("Dados do evento a serem enviados:", eventoData);
+  
+      // 2. Criar evento
+      const eventoResponse = await fetch('https://volun-api-eight.vercel.app/eventos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(eventoData),
       });
-
-      const eventoResult = await responseEvento.json();
-      if (!responseEvento.ok) {
-        throw new Error(`Erro ao criar evento: ${eventoResult.message || 'Erro desconhecido'}`);
+  
+      if (!eventoResponse.ok) {
+        throw new Error('Erro ao criar evento.');
       }
-
-      const responseEndereco = await fetch('https://volun-api-eight.vercel.app/endereco', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...enderecoData, evento_id: eventoResult._id }),
-      });
-
-      const enderecoResult = await responseEndereco.json();
-      if (!responseEndereco.ok) {
-        throw new Error(`Erro ao criar endereço: ${enderecoResult.message || 'Erro desconhecido'}`);
-      }
-
-      alert("Evento criado com sucesso!");
+  
+  
+      alert(`Evento criado com sucesso:`);
     } catch (error) {
-      alert(`Erro ao criar evento: ${error.message}`);
+      console.error('Erro ao salvar:', error.message);
+      alert('Ocorreu um erro ao salvar. Tente novamente.');
     }
   };
+  
+  
+  
+  
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -288,6 +364,13 @@ const CriarEventos = () => {
           placeholder="Descrição"
           value={descricao}
           onChangeText={setDescricao}
+          multiline
+        />
+        <TextInput
+          style={styles.textArea}
+          placeholder="Descrição"
+          value={descricao2}
+          onChangeText={setDescricao2}
           multiline
         />
       </View>
