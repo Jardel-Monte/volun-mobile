@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import { format } from 'date-fns';
+import { auth } from '../services/firebase-config'; // Certifique-se de ajustar o caminho para o seu firebase-config.js
 
 const EventoInfo = ({ route }) => {
   const { eventoId, endereco } = route.params;
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isParticipating, setIsParticipating] = useState(false); // Controle da participação
+  const [participacaoId, setParticipacaoId] = useState(null); // Armazena o ID da participação
   const [newDataInicio, setnewDataInicio] = useState('');
   const [newDataFim, setDataFimFormatada] = useState('');
 
@@ -14,18 +18,101 @@ const EventoInfo = ({ route }) => {
       .then(response => response.json())
       .then(data => {
         setEvento(data);
-
-        // Formatação das datas
-        setnewDataInicio(format(new Date(data.data_inicio), 'dd/MM/yyyy hh:mm'));
-        setDataFimFormatada(format(new Date(data.data_fim), 'dd/MM/yyyy hh:mm'));
-
+        setnewDataInicio(format(new Date(data.data_inicio), 'dd/MM/yyyy HH:mm'));
+        setDataFimFormatada(format(new Date(data.data_fim), 'dd/MM/yyyy HH:mm'));
         setLoading(false);
       })
       .catch(error => {
         console.error(error);
         setLoading(false);
       });
+
+    // Verificar participação do usuário assim que o evento for carregado
+    verificarParticipacao();
   }, [eventoId]);
+
+  // Função para verificar se o usuário já está participando do evento
+  const verificarParticipacao = async () => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+
+    try {
+      const response = await fetch(
+        `https://volun-api-eight.vercel.app/participacao/usuario/${userId}/evento/${eventoId}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data._id) {
+          setParticipacaoId(data._id); // Salva o ID próprio do documento
+          setIsParticipating(true); // Marca como participante
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao verificar participação:", error);
+    }
+  };
+
+  // Função para cancelar a participação do usuário
+  const handleCancelarParticipacao = async () => {
+    if (!participacaoId) return;
+
+    try {
+      const response = await fetch(
+        `https://volun-api-eight.vercel.app/participacao/${participacaoId}`,
+        { method: "DELETE" }
+      );
+
+      if (response.ok) {
+        Alert.alert("Sucesso", "Participação cancelada com sucesso!");
+        setIsParticipating(false); // Atualiza o estado para refletir a remoção da participação
+        setParticipacaoId(null); // Limpa o ID da participação
+      } else {
+        throw new Error("Erro ao cancelar participação");
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar participação:", error);
+    }
+  };
+
+  // Função para confirmar a participação do usuário
+  const handleParticipar = async () => {
+    if (isParticipating) {
+      // Se já estiver participando, exibe o modal de confirmação
+      setShowModal(true);
+      return;
+    }
+
+    setIsProcessing(true);
+    const userId = auth.currentUser?.uid;
+    if (!userId) return console.error("Usuário não está logado");
+
+    const participacaoData = {
+      evento_id: eventoId,
+      usuario_id: userId,
+    };
+
+    try {
+      const response = await fetch("https://volun-api-eight.vercel.app/participacao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(participacaoData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsParticipating(true); // Marca como participante
+        setParticipacaoId(data._id); // Salva o ID do documento
+        Alert.alert("Sucesso", "Participação confirmada!");
+      } else {
+        throw new Error("Erro ao confirmar participação");
+      }
+    } catch (error) {
+      console.error("Erro ao participar:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
@@ -53,6 +140,24 @@ const EventoInfo = ({ route }) => {
         </View>
       )}
 
+      {/* Botão de Participar ou Cancelar */}
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={isParticipating ? handleCancelarParticipacao : handleParticipar}
+          disabled={isProcessing}
+        >
+          {isProcessing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>
+              {isParticipating ? "Cancelar Participação" : "Participar"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Informações do Evento */}
       <Text style={styles.organization}>{evento.ong_id?.nome}</Text>
       <Text style={styles.address}>
         {endereco?.logradouro}, {endereco?.cidade} - {endereco?.estado}
@@ -77,6 +182,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  button: {
+    backgroundColor: '#1F0171',
+    paddingVertical: 12,
+    paddingHorizontal: 100,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
   imagemEvento: {
     width: '100%',
     height: 200,
@@ -98,7 +221,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   tagBox: {
-    backgroundColor: '#007BFF', // Escolha uma cor que combine com o tema
+    backgroundColor: '#007BFF',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
@@ -107,7 +230,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 14,
-    color: '#fff', // Cor do texto branco para contrastar com o fundo
+    color: '#fff',
   },
   organization: {
     fontSize: 18,
@@ -148,4 +271,3 @@ const styles = StyleSheet.create({
 });
 
 export default EventoInfo;
-
