@@ -82,7 +82,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='CriarEventoS'
+          name='CriarEventos'
           component={CriarEventos}
           options={{ headerShown: false }}
         />
