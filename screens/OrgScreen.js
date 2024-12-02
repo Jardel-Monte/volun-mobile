@@ -1,72 +1,141 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {React, useState, useEffect} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import EventoCard from '../componentes/eventoCard';
+import Sapo from '../assets/images/download.jpg';
 
 export default function OrgScreen() {
-    
-    const navigation = useNavigation();
+    const [eventos, setEventos] = useState([]);
 
-    const handleNavigate = () => {
-        navigation.navigate('CriarEventos');
-        console.log('navegar para página de criar ORG.');
+    // Função para fazer logout
+    const handleLogout = () => {
+        auth.signOut()
+            .then(() => {
+                console.log('Usuário desconectado');
+                navigation.navigate('EntrarConta'); // Redireciona para a tela de login
+            })
+            .catch(error => {
+                console.error('Erro ao desconectar:', error);
+            });
     };
 
+    // Função para buscar os eventos e endereços
+    useEffect(() => {
+        const fetchEventos = async () => {
+            try {
+                // Busca de eventos
+                const eventosResponse = await fetch('https://volun-api-eight.vercel.app/eventos');
+                const eventosData = await eventosResponse.json();
+
+                // Busca de endereços
+                const enderecosResponse = await fetch('https://volun-api-eight.vercel.app/endereco');
+                const enderecosData = await enderecosResponse.json();
+
+                // Relacionar eventos com endereços
+                const eventosComEndereco = eventosData.map(evento => {
+                    const endereco = enderecosData.find(e => e.evento_id === evento._id);
+                    return { ...evento, endereco: endereco || {} }; // Define um objeto vazio se não houver endereço
+                });
+
+                setEventos(eventosComEndereco);
+            } catch (error) {
+                console.error('Erro ao carregar eventos e endereços:', error);
+            }
+        };
+
+        fetchEventos();
+    }, []);
+
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Organização</Text>
-            <Image
-                    source={{ uri: 'https://i.pinimg.com/originals/43/3d/1a/433d1a68bd12261093efbf3c0be54ea2.gif' }}
-                    style={styles.gif}
-                    resizeMode="contain"
-            />
-            <Text style={styles.message}>
-                Crie sua Organização sem fins lucrativos! gerencie ou organize
-                seus próprios Eventos e interaja com a Comunidade já!
-            </Text>
-            <TouchableOpacity style={styles.button} onPress={handleNavigate}>
-                <Text style={styles.buttonText}>Criar evento</Text>
-            </TouchableOpacity>
-        </View>
+        <ScrollView>
+            <View style={styles.layout}>
+                <Image source={Sapo} style={styles.ongPfp} />
+                <Text style={styles.nomeOng}>Fanáticos por Sapos</Text>
+                <Text style={styles.infoOrg}>Fundado em: 01/11/2024</Text>
+                <Text style={styles.infoOrg}>Natureza</Text>
+                <TouchableOpacity style={styles.addEvent}>
+                    <Text style={styles.addEventText}>Criar Evento</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.layout}>
+                <Text style={styles.titleDesc}>Sobre a ONG:</Text>
+                <Text style={styles.textDesc}>Somos uma organização não governamental dedicada à pesquisa, estudo e preservação dos sapos e outros anfíbios, criaturas essenciais para o equilíbrio ambiental. Fundada por biólogos apaixonados pela natureza, a ONG busca conscientizar a sociedade sobre a importância desses animais na cadeia alimentar e no controle de pragas, além de atuar na proteção de seus habitats ameaçados pela ação humana.</Text>
+            </View>
+
+            <View style={styles.layout}>
+                <Text style={styles.titleEvents}>Eventos criados:</Text>
+                {!eventos.length > 0 ? ( // Deixei essa exclamação para exibir o texto invés de eventos, para exibir eventos retire a exclamação
+                    eventos.map((evento) => {
+                        return (
+                            <EventoCard
+                                key={evento._id}
+                                evento={evento} // Passa o objeto evento completo
+                            />
+                        );
+                    })
+                ) : (
+                    <Text style={styles.noEvents}>Nenhum evento disponível</Text>
+                )}
+            </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
+    layout: {
+        backgroundColor: 'white',
+        borderRadius: 15,
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        padding: 15,
+        margin: 10
+    },
+    ongBox: {
 
-        
-        padding: 30,
     },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: '#333',
+    ongPfp: {
+        width: 150,
+        height: 150,
+        borderRadius: 100,
     },
-    message: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginBottom: 30,
-        color: '#666',
-        lineHeight: 24,
+    nomeOng: {
+        fontSize: 33,
+        color: '#1F0171',
+        fontWeight: 'bold'
     },
-    gif: {
-        width: 100,
-        height: 80,
-        margin: 30,
+    infoOrg: {
+        fontSize: 23,
+        color: '#1F0171',
+        fontWeight: 'bold'
     },
-    button: {
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 8,
+    addEvent: {
+        backgroundColor: '#1f0171',
+        borderRadius: 10,
+        padding: 7,
+        marginTop: 7
     },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
+    addEventText: {
+        fontSize: 22,
+        color: 'white'
+    },  
+    titleDesc: {
+        fontSize: 23,
+        color: "#1f0171",
+        fontWeight: 'bold'
     },
-});
+    textDesc: {
+        fontSize: 20,
+        color: "#1f0171",
+        textAlign: "justify"
+    },
+    titleEvents: {
+        fontSize: 23,
+        color: "#1f0171",
+        fontWeight: 'bold'
+    },
+    noEvents: {
+        fontSize: 19,
+        color: "#1f0171",
+        padding: 20
+    }
+})
