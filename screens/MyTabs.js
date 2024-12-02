@@ -31,7 +31,7 @@ function MyTabs() {
               iconName = 'search';
               break;
             case 'Perfil':
-              iconName = '';
+              iconName = 'person';
               break;
             default:
               iconName = 'circle';

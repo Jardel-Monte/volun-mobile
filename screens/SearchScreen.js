@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import TagCard from '../componentes/TagCard';
 import algoliaClient from '../services/algolia-config.js';
+import EventoCard from '../componentes/eventoCard';
 
 const index = algoliaClient.initIndex("eventos");
 
@@ -9,74 +11,87 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
-  const [eventos, setEventos] = useState([]); // Estado para armazenar os eventos buscados
+  const [eventos, setEventos] = useState([]);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery && !categoriaSelecionada) {
+      Alert.alert('Atenção', 'Por favor, insira um termo de busca ou selecione uma categoria.');
+      return;
+    }
+
     try {
       setLoading(true);
-      const { estadoSelecionado, categoria, cidade, searchQuery } = filtros;
-
-      // Realiza a busca no Algolia aplicando apenas os filtros preenchidos
-      const algoliaResponse = await index.search(searchQuery || "", {
-          filters: [
-              categoria ? `tags:${categoria}` : ""
-          ].filter(Boolean).join(" AND "),
+      const algoliaResponse = await index.search(searchQuery, {
+        filters: categoriaSelecionada ? `tags:${categoriaSelecionada}` : '',
       });
 
-      // Processa os resultados do Algolia
       const eventosAlgolia = algoliaResponse.hits.map(hit => ({
-          ...hit,
-          categoria: "Carregando..." // Endereço será buscado depois
+        ...hit,
+        endereco: 'Carregando...'
       }));
 
-      // Para cada evento com objectID válido, busca o endereço no MongoDB
       const eventosComEnderecos = await Promise.all(
-          eventosAlgolia.map(async (evento) => {
-              if (!evento.objectID) return evento; // Ignora se objectID estiver indefinido
+        eventosAlgolia.map(async (evento) => {
+          if (!evento.objectID) return evento;
 
-              try {
-                  const enderecoResponse = await fetch(
-                      `https://volun-api-eight.vercel.app/endereco/evento/${evento.objectID}`
-                  );
-                  const enderecoData = await enderecoResponse.json();
+          try {
+            const enderecoResponse = await fetch(
+              `https://volun-api-eight.vercel.app/endereco/evento/${evento.objectID}`
+            );
+            const enderecoData = await enderecoResponse.json();
 
-                  const endereco = Array.isArray(enderecoData) && enderecoData.length > 0
-                      ? `${enderecoData[0].cidade}, ${enderecoData[0].estado}`
-                      : "Endereço indefinido";
+            const endereco = Array.isArray(enderecoData) && enderecoData.length > 0
+              ? `${enderecoData[0].cidade}, ${enderecoData[0].estado}`
+              : 'Endereço indefinido';
 
-                  return { ...evento, endereco };
-              } catch {
-                  return { ...evento, endereco: "Endereço indefinido" };
-              }
-          })
+            return { ...evento, endereco };
+          } catch {
+            return { ...evento, endereco: 'Endereço indefinido' };
+          }
+        })
       );
 
       setEventos(eventosComEnderecos);
-  } catch (error) {
-      console.error("Erro ao buscar eventos:", error);
-  } finally {
+    } catch (error) {
+      console.error('Erro ao buscar eventos:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao buscar os eventos. Por favor, tente novamente.');
+    } finally {
       setLoading(false);
-      setCurrentPage(1);
-  }
-};
+    }
+  }, [searchQuery, categoriaSelecionada]);
 
-  const handleSelectCategory = (categoria) => {
+  const handleSelectCategory = useCallback((categoria) => {
     setCategoriaSelecionada(categoria);
     console.log('Categoria selecionada:', categoria);
-  };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reset state when screen comes into focus
+      setSearchQuery('');
+      setCategoriaSelecionada(null);
+      setEventos([]);
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Buscar</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite sua busca"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleSearch}>
-        <Text style={styles.buttonText}>{loading ? "Buscando..." : "Buscar"}</Text>
-      </TouchableOpacity>
+      <Text style={styles.title}>Buscar Eventos</Text>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite sua busca"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleSearch} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.buttonText}>Buscar</Text>
+          )}
+        </TouchableOpacity>
+      </View>
       <View style={styles.categoriaContainer}>
         <TagCard selectCategory={handleSelectCategory} />
         {categoriaSelecionada && (
@@ -86,16 +101,18 @@ export default function SearchScreen() {
         )}
       </View>
 
-      {/* Exibir eventos */}
       <FlatList
         data={eventos}
         keyExtractor={(item) => item.objectID}
         renderItem={({ item }) => (
-          <View style={styles.eventItem}>
-            <Text style={styles.eventTitle}>{item.title}</Text>
-            <Text>{item.endereco}</Text>
-          </View>
+          <EventoCard evento={item} />
         )}
+        ListEmptyComponent={() => (
+          <Text style={styles.emptyListText}>
+            {loading ? 'Buscando eventos...' : 'Nenhum evento encontrado.'}
+          </Text>
+        )}
+        contentContainerStyle={styles.eventList}
       />
     </View>
   );
@@ -104,44 +121,57 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
-    height: 500,
+    backgroundColor: '#FBFBFE',
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  searchContainer: {
+    flexDirection: 'row',
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#E3E7F0',
-    position: "relative",
+    flex: 1,
     height: 40,
-    marginVertical: 16,
+    backgroundColor: '#E3E7F0',
     paddingHorizontal: 8,
-    width: '100%',
+    borderRadius: 5,
+    marginRight: 8,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: '#007AFF',
     padding: 10,
     borderRadius: 5,
+    justifyContent: 'center',
     alignItems: 'center',
+    minWidth: 80,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-  },
-  selectedCategory: {
-    marginVertical: 20,
-    fontSize: 16,
-    color: 'green',
+    fontWeight: 'bold',
   },
   categoriaContainer: {
+    marginBottom: 16,
+  },
+  selectedCategory: {
+    marginTop: 8,
+    fontSize: 16,
+    color: '#007AFF',
     textAlign: 'center',
-    justifyContent: 'center',
-    width: 400,
-    height: 400,
-    marginHorizontal: 20,
-    marginVertical: 20,
-  }
+  },
+  eventList: {
+    flexGrow: 1,
+  },
+  emptyListText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#666',
+  },
 });
+
