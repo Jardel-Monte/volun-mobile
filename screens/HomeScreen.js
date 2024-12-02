@@ -1,156 +1,143 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { auth } from '../services/firebase-config';
-import { Ionicons } from '@expo/vector-icons';
-import CategorySlider from '../componentes/CategorySlider';
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity } from "react-native";
 
-export default function HomeScreen({ navigation }) {
-    const [eventos, setEventos] = useState([]);
-    const [featuredEventos, setFeaturedEventos] = useState([]);
-    const [upcomingEventos, setUpcomingEventos] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [groupedEventos, setGroupedEventos] = useState({});
+export default function EventosScreen({ navigation }) {
+  const [eventos, setEventos] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogout = () => {
-        auth.signOut()
-            .then(() => {
-                console.log('Usuário desconectado');
-                navigation.navigate('EntrarConta');
-            })
-            .catch(error => {
-                console.error('Erro ao desconectar:', error);
-            });
+  useEffect(() => {
+    const fetchEventos = async () => {
+      try {
+        setIsLoading(true); // Indica que os dados estão carregando
+        const response = await fetch(
+          "https://volun-api-eight.vercel.app/eventos"
+        );
+        const data = await response.json();
+
+        // Mapeia os dados e inverte a ordem dos eventos
+        const eventosDetalhes = data.reverse().map((evento) => ({
+          id: evento._id,
+          titulo: evento.titulo,
+          descricao: evento.descricao,
+          ongNome: evento.ong_id?.nome || "ONG não especificada",
+          dataInicio: evento.data_inicio,
+          imgUrl: evento.imagem,
+          vagaLimite: evento.vaga_limite,
+          endereco: evento.endereco_id
+            ? `${evento.endereco_id.bairro}, ${evento.endereco_id.cidade} - ${evento.endereco_id.estado}`
+            : "Endereço não disponível",
+          eventoCompleto: evento, // Adiciona o evento completo para detalhes
+        }));
+
+        setEventos(eventosDetalhes);
+      } catch (error) {
+        console.error("Erro ao buscar eventos:", error);
+      } finally {
+        setIsLoading(false); // Fim do carregamento
+      }
     };
 
-    const handleSearch = () => {
-        navigation.navigate('Pesquisar', { query: searchQuery });
-    };
+    fetchEventos();
+  }, []);
 
-    useEffect(() => {
-        const fetchEventos = async () => {
-            try {
-                const eventosResponse = await fetch('https://volun-api-eight.vercel.app/eventos');
-                const eventosData = await eventosResponse.json();
+  // Navega para a página de detalhes do evento
+  const handleEventoPress = (eventoCompleto) => {
+    navigation.navigate("EventoInfo", { evento: eventoCompleto }); // Altere o nome da rota para "EventoInfo"
+  };
 
-                const enderecosResponse = await fetch('https://volun-api-eight.vercel.app/endereco');
-                const enderecosData = await enderecosResponse.json();
-
-                const eventosComEndereco = eventosData.map(evento => {
-                    const endereco = enderecosData.find(e => e.evento_id === evento._id);
-                    return { ...evento, endereco: endereco || {} };
-                });
-
-                setEventos(eventosComEndereco);
-
-                // Set featured events (using the first 5 events if no 'featured' field exists)
-                const featured = eventosComEndereco.filter(evento => evento.featured).slice(0, 5);
-                setFeaturedEventos(featured.length > 0 ? featured : eventosComEndereco.slice(0, 5));
-
-                // Set upcoming events (using the next 5 events if no 'date' field exists)
-                const currentDate = new Date();
-                const upcoming = eventosComEndereco
-                    .filter(evento => new Date(evento.date) > currentDate)
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
-                    .slice(0, 5);
-                setUpcomingEventos(upcoming.length > 0 ? upcoming : eventosComEndereco.slice(5, 10));
-
-                // Group eventos by category
-                const grouped = eventosComEndereco.reduce((acc, evento) => {
-                    const category = evento.categoria || 'Outros';
-                    if (!acc[category]) {
-                        acc[category] = [];
-                    }
-                    acc[category].push(evento);
-                    return acc;
-                }, {});
-
-                // Ensure each category has at least 3 events
-                Object.keys(grouped).forEach(category => {
-                    if (grouped[category].length < 3) {
-                        const additionalEvents = eventosComEndereco
-                            .filter(e => e.categoria !== category)
-                            .slice(0, 3 - grouped[category].length);
-                        grouped[category] = [...grouped[category], ...additionalEvents];
-                    }
-                });
-
-                setGroupedEventos(grouped);
-            } catch (error) {
-                console.error('Erro ao carregar eventos e endereços:', error);
-            }
-        };
-
-        fetchEventos();
-    }, []);
-
-    return (
-        <View style={styles.container}>
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Pesquisar eventos..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    onSubmitEditing={handleSearch}
-                />
-                <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-                    <Ionicons name="search" size={24} color="#007AFF" />
-                </TouchableOpacity>
-            </View>
-
-            <Button title="Sair" onPress={handleLogout} />
-
-            <ScrollView style={styles.scrollContainer}>
-                {featuredEventos.length > 0 && (
-                    <CategorySlider category="Eventos em Destaque" eventos={featuredEventos} />
-                )}
-                {upcomingEventos.length > 0 && (
-                    <CategorySlider category="Próximos Eventos" eventos={upcomingEventos} />
-                )}
-                {Object.entries(groupedEventos).map(([category, categoryEventos]) => (
-                    <CategorySlider key={category} category={category} eventos={categoryEventos} />
-                ))}
-                {Object.keys(groupedEventos).length === 0 && (
-                    <Text style={styles.noEventosText}>Nenhum evento disponível no momento.</Text>
-                )}
-            </ScrollView>
+  // Renderiza cada item do evento
+  const renderEvento = ({ item }) => (
+    <TouchableOpacity onPress={() => handleEventoPress(item.eventoCompleto)}>
+      <View style={styles.eventCard}>
+        <Image source={{ uri: item.imgUrl }} style={styles.eventImage} />
+        <View style={styles.eventInfo}>
+          <Text style={styles.eventTitle}>{item.titulo}</Text>
+          <Text style={styles.eventOng}>ONG: {item.ongNome}</Text>
+          <Text style={styles.eventDescription}>{item.descricao}</Text>
+          <Text style={styles.eventAddress}>{item.endereco}</Text>
         </View>
-    );
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#6200ee" style={styles.loader} />
+      ) : (
+        <FlatList
+          data={eventos}
+          keyExtractor={(item) => item.id}
+          renderItem={renderEvento}
+          contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={
+            <Text style={styles.noEventosText}>
+              Nenhum evento disponível no momento.
+            </Text>
+          }
+        />
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FBFBFE',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-        paddingTop: 10,
-        paddingBottom: 5,
-        backgroundColor: '#FFFFFF',
-    },
-    searchInput: {
-        flex: 1,
-        height: 40,
-        borderColor: '#CCCCCC',
-        borderWidth: 1,
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        fontSize: 16,
-    },
-    searchButton: {
-        padding: 10,
-    },
-    scrollContainer: {
-        flex: 1,
-        marginTop: 20,
-    },
-    noEventosText: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 20,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#F7F7F7",
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  listContainer: {
+    padding: 15,
+  },
+  eventCard: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    marginBottom: 15,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  eventImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  eventInfo: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  eventTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  eventOng: {
+    fontSize: 14,
+    color: "#666",
+  },
+  eventDescription: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+  eventAddress: {
+    fontSize: 14,
+    color: "#6200ee",
+    marginTop: 5,
+  },
+  noEventosText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "#888",
+    marginTop: 20,
+  },
 });
-
