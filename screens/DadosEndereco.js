@@ -1,7 +1,39 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
+import axios from "axios";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function DadosEndereco({ userAddress, setUserAddress, editable }) {
+export default function DadosEndereco({ userAddress, setUserAddress, editable  }) {
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const buscarCEP = async (e) => {
+        e.preventDefault();
+        const cep = enderecoData.cep.replace(/\D/g,"");
+        if (cep.length >= 8){
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if (!data.erro){
+                   setEnderecoData({
+                        ...enderecoData,
+                        logradouro : data.logradouro,
+                        bairro: data.bairro,
+                        cidade: data.localidade,
+                        estado: data.uf,
+                   }); 
+                }
+                else {
+                    alert("CEP não encontrado.");
+                }
+            }
+            catch (error){
+                alert(`Erro ao buscar CEP. Tente novamente., ${error}`);
+            }
+        } else {
+            alert("CEP inválido.");
+        }
+    };
 
     return (
         <View>
@@ -11,9 +43,9 @@ export default function DadosEndereco({ userAddress, setUserAddress, editable })
                     placeholder="CEP"
                     value={userAddress.cep}
                     onChangeText={(text) => setUserAddress({...userAddress, cep : text})}
-                    editable={!editable}
+                    editable={editable}
                 />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={buscarCEP}>
                     <Text>Buscar</Text>
                 </TouchableOpacity>
             </View>
@@ -31,7 +63,7 @@ export default function DadosEndereco({ userAddress, setUserAddress, editable })
                         placeholder="Numero"
                         value={userAddress.numero}
                         onChangeText={(text) => setUserAddress({...userAddress, numero : text})}
-                        editable={!editable}
+                        editable={editable}
                     />
                 </View>
             </View>
