@@ -16,6 +16,7 @@ import BemVindo from './screens/BemVindo';
 import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
 import CriarEventos from './screens/CriarEventos';
+import CriarORG from './screens/CriarORG';
 
 const Stack = createStackNavigator();
 
@@ -84,6 +85,11 @@ export default function App() {
         <Stack.Screen
           name='CriarEventos'
           component={CriarEventos}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='CriarORG'
+          component={CriarORG}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
