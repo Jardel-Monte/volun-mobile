@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
-import axios from "axios";
-import { getAuth } from "../services/firebase-config";
+import React, { useState } from "react";
+import { Text, TextInput, View, StyleSheet, ScrollView } from "react-native";
 
 export default function DadosPessoal({ userData, setUserData, editable }) {
     const [error, setError] = useState(false);
@@ -91,7 +89,7 @@ export default function DadosPessoal({ userData, setUserData, editable }) {
 
     return (
         <View style={styles.container}>
-            <Text>DadosPessoal</Text>
+            <Text style={styles.containerTitle}>Dados Pessoal</Text>
             <ScrollView style={styles.scrollViewComponent}>
                 <View>
                     <View>
@@ -168,12 +166,18 @@ export default function DadosPessoal({ userData, setUserData, editable }) {
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 50,
-    },    
-    scrollViewComponent: {
         width: '100%',
-        marginBottom: 40,
-        paddingBottom: 40,
+        margin: 'auto',
+    },
+    containerTitle: {
+        fontSize: 16,
+        textAlign: 'center',
+
+    },
+    scrollViewComponent: {
+        margin: 'auto',
+        marginBottom: 20,
+        paddingBottom: 20,
     },
     componentInput: {
         backgroundColor: '#e5e5e5',

@@ -149,7 +149,7 @@ export default function InformacaoPessoal() {
     }, []);
 
     return (
-        <View>
+        <View style={styles.container}>
             <ScrollView style={styles.componentScrollView}>
                 {renderActiveComponent()}
             </ScrollView>
@@ -161,9 +161,9 @@ export default function InformacaoPessoal() {
                     <Text>Endereço</Text>
                 </TouchableOpacity>
             </View>
-            <View>
+            <View style={styles.componentButtons}>
                 {editable ? (
-                    <View>
+                    <View style={styles.buttonsContainer}>
                         <TouchableOpacity onPress={handleSaveChanges}>
                             <Text>Salvar</Text>
                         </TouchableOpacity>
@@ -184,7 +184,15 @@ export default function InformacaoPessoal() {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        margin: 'auto',
+        height: 'auto',
+        paddingBottom: 100,
+    },
     componentScrollView: {
         height: 'auto',
     },
+    componentButtons: {
+        marginVertical: 10,
+    }
 })

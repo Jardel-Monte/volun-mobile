@@ -55,15 +55,17 @@ export default function PerfilScreen({ navigation }) {
         <View style={styles.container}>
             {user && (
                 <>
-                    <Image
-                        source={{ uri: user.photoURL || require('../assets/images/photo-perfil.png') }} // Caso não tenha uma imagem, será usado um placeholder
-                        style={styles.profileImage}
-                    />
-                    <View style={styles.textContainer}>
-                        <Text style={styles.userName}>
-                            {user.displayName || `${userData?.nome} ${userData?.sobrenome}` || 'Usuário'}
-                        </Text>
-                        <Text style={styles.userEmail}>{user.email}</Text>
+                    <View style={styles.profileComponent}>
+                        <Image
+                            source={{ uri: user.photoURL || require('../assets/images/photo-perfil.png') }} // Caso não tenha uma imagem, será usado um placeholder
+                            style={styles.profileImage}
+                        />
+                        <View style={styles.textContainer}>
+                            <Text style={styles.userName}>
+                                {user.displayName || `${userData?.nome} ${userData?.sobrenome}` || 'Usuário'}
+                            </Text>
+                            <Text style={styles.userEmail}>{user.email}</Text>
+                        </View>
                     </View>
                     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                         <Text style={styles.logoutButtonText}>Logout</Text>
@@ -100,7 +102,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#FBFBFE',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
+        paddingVertical: 150,
+        height: 'auto',
+    },
+    profileComponent: {
+        paddingVertical: 30,
+        display: 'flex',
+        flexDirection: 'row',
     },
     profileImage: {
         width: 100,
@@ -165,9 +173,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     componentScrollView: {
-        marginHorizontal: 'auto',
-        paddingVertical: 30,
-        height: 500,
+        marginVertical: 20,
+        height: 'auto',
     }
 });
 
