@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 
@@ -13,14 +13,14 @@ export default function InformacaoPessoal() {
         nome: "",
         sobrenome: "",
         cpf: "",
-        dataNasc: "",
+        data_nascimento: "",
         ddd: "",
         telefone: "",
         email: "",
     });
     const [userAddress, setUserAddress] = useState({
         cep: "",
-        endereco: "",
+        logradouro: "",
         numero: "",
         bairro: "",
         cidade: "",
@@ -47,14 +47,13 @@ export default function InformacaoPessoal() {
         }
 
         const uid = user.uid;
-
         try {
             if (activeComponent === "DadosPessoal") {
                 const updatedUserData = {
                     nome: userData.nome.trim(),
                     sobrenome: userData.sobrenome.trim(),
                     cpf: userData.cpf,
-                    data_nascimento: userData.dataNasc,
+                    data_nascimento: formatarDataISO(userData.data_nascimento),
                     ddd: userData.ddd,
                     telefone: userData.telefone,
                 };
@@ -63,7 +62,7 @@ export default function InformacaoPessoal() {
             } else if (activeComponent === "DadosEndereço") {
                 const updatedAddressData = {
                     cep: userAddress.cep,
-                    endereco: userAddress.endereco,
+                    logradouro: userAddress.logradouro,
                     numero: userAddress.numero,
                     bairro: userAddress.bairro,
                     cidade: userAddress.cidade,
@@ -94,6 +93,21 @@ export default function InformacaoPessoal() {
         return null;
     };
 
+    const formatarDataISO = (date) => {
+        const dateObj = new Date(date);
+        // Verifica se a data é válida
+        if (isNaN(dateObj.getTime())) {
+            throw new Error("Data inválida.");
+        }
+        const day = dateObj.getUTCDate();
+        const month = dateObj.getMonth() + 1;
+        const year = dateObj.getFullYear();
+        // Adiciona zero à esquerda para dia e mês, se necessário
+        const formattedDay = day < 10 ? `0${day}` : day;
+        const formattedMonth = month < 10 ? `0${month}` : month;
+        return `${formattedDay}/${formattedMonth}/${year}`;
+    }
+
     const handleFormUser = async () => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -108,14 +122,15 @@ export default function InformacaoPessoal() {
 
         try {
             const response = await axios.get(`https://volun-api-eight.vercel.app/usuarios/${uid}`);
-            setUserData({ ...response.data, email: user.email });
+            const responseData = formatarDataISO(response.data.data_nascimento);
+            setUserData({ ...response.data, dataNasc : responseData, email: user.email });
 
             const enderecoResponse = await axios.get(`https://volun-api-eight.vercel.app/endereco/usuario/${uid}`);
             if (enderecoResponse.data && enderecoResponse.data.length > 0) {
                 const endereco = enderecoResponse.data[0];
                 setUserAddress({
                     cep: endereco.cep || "",
-                    endereco: endereco.endereco || "",
+                    logradouro: endereco.logradouro || "",
                     numero: endereco.numero || "",
                     bairro: endereco.bairro || "",
                     cidade: endereco.cidade || "",
@@ -128,14 +143,14 @@ export default function InformacaoPessoal() {
             setLoading(false);
         }
     };
-
+    
     useEffect(() => {
         handleFormUser();
     }, []);
 
     return (
         <View>
-            <ScrollView>
+            <ScrollView style={styles.componentScrollView}>
                 {renderActiveComponent()}
             </ScrollView>
             <View>
@@ -167,3 +182,9 @@ export default function InformacaoPessoal() {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    componentScrollView: {
+        height: 'auto',
+    },
+})

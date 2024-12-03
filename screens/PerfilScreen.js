@@ -68,16 +68,22 @@ export default function PerfilScreen({ navigation }) {
                     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                         <Text style={styles.logoutButtonText}>Logout</Text>
                     </TouchableOpacity>
-                    <View>
-                        <View>
-                            <TouchableOpacity onPress={() => setActiveComponent("InformacaoPessoal")}>
-                                <Text>Informação Pessoal</Text>
+                    <View style={styles.componentContainer}>
+                        <View style={styles.componentView}>
+                            <TouchableOpacity 
+                                style={styles.componentButton}
+                                onPress={() => setActiveComponent("InformacaoPessoal")}
+                            >
+                                <Text style={styles.componentText}>Informação Pessoal</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setActiveComponent("Historico")}>
-                                <Text>Histórico</Text>
+                            <TouchableOpacity
+                                style={styles.componentButton} 
+                                onPress={() => setActiveComponent("Historico")}
+                            >
+                                <Text style={styles.componentText}>Histórico</Text>
                             </TouchableOpacity>
                         </View>
-                        <ScrollView>
+                        <ScrollView style={styles.componentScrollView}>
                             {toggleActiveComponent()}
                         </ScrollView>
                     </View>
@@ -134,5 +140,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    componentContainer: {
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    componentView: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    componentButton: {
+        backgroundColor: theme.colors.primary,
+        width: 150,
+        paddingVertical: 12,
+        marginHorizontal: 20,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    componentText: {
+        color: '#FFF',
+        textAlign: 'center',
+    },
+    componentScrollView: {
+        marginHorizontal: 'auto',
+        paddingVertical: 30,
+        height: 500,
+    }
 });
 

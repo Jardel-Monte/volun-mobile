@@ -53,8 +53,8 @@ export default function DadosEndereco({ userAddress, setUserAddress, editable  }
                 <View>
                     <TextInput 
                         placeholder="Endereço"
-                        value={userAddress.endereco}
-                        onChangeText={(text) => setUserAddress({...userAddress, endereco : text})}
+                        value={userAddress.logradouro}
+                        onChangeText={(text) => setUserAddress({...userAddress, logradouro : text})}
                         editable={false}
                     />
                 </View>

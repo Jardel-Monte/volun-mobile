@@ -69,21 +69,6 @@ export default function DadosPessoal({ userData, setUserData, editable }) {
         const dataFormatada = dataConvertida.toISOString().split('T')[0];
         return dataFormatada;
     }
-    // Função para converter "yyyy-mm-dd" para "dd/mm/yyyy"
-    const formatDateISO = (date) => {
-        const dateObj = new Date(date);
-        // Verifica se a data é válida
-        if (isNaN(dateObj.getTime())) {
-            throw new Error("Data inválida.");
-        }
-        const day = dateObj.getUTCDate();
-        const month = dateObj.getMonth() + 1;
-        const year = dateObj.getFullYear();
-        // Adiciona zero à esquerda para dia e mês, se necessário
-        const formattedDay = day < 10 ? `0${day}` : day;
-        const formattedMonth = month < 10 ? `0${month}` : month;
-        return `${formattedDay}/${formattedMonth}/${year}`;
-    }
 
     const formatarDDD = (ddd) => {
         // Remove caracteres não numéricos
@@ -105,69 +90,113 @@ export default function DadosPessoal({ userData, setUserData, editable }) {
     }
 
     return (
-        <View>
+        <View style={styles.container}>
             <Text>DadosPessoal</Text>
-            <View>
+            <ScrollView style={styles.scrollViewComponent}>
                 <View>
-                    <TextInput 
-                        placeholder="Nome" 
-                        value={userData.nome} 
-                        onChangeText={(text) => setUserData({...userData, nome : formatarNome(text) })}
-                        editable={editable}
-                    />
+                    <View>
+                        <TextInput
+                            style={[styles.inputNome, styles.componentInput]}
+                            placeholder="Nome" 
+                            value={userData.nome} 
+                            onChangeText={(text) => setUserData({...userData, nome : formatarNome(text) })}
+                            editable={editable}
+                        />
+                    </View>
+                    <View>
+                        <TextInput
+                            style={[styles.inputNome, styles.componentInput]}
+                            placeholder="Sobrenome" 
+                            value={userData.sobrenome}
+                            onChangeText={(text) => setUserData({...userData, sobrenome : formatarSobrenome(text) })}
+                            editable={editable}
+                        />
+                    </View>
                 </View>
                 <View>
                     <TextInput 
-                        placeholder="Sobrenome" 
-                        value={userData.sobrenome}
-                        onChangeText={(text) => setUserData({...userData, sobrenome : formatarSobrenome(text) })}
-                        editable={editable}
-                    />
-                </View>
-            </View>
-            <View>
-                <TextInput 
-                    placeholder="CPF" 
-                    value={userData.cpf}
-                    onChangeText={(text) => setUserData({...userData, cpf : formatarCPF(text) })}
-                    editable={false}
-                />
-            </View>
-            <View>
-                <TextInput 
-                    placeholder="Data de Nascimento" 
-                    value={userData.dataNasc}
-                    onChangeText={(text) => setUserData({...userData, dataNasc : formatarData(text)})}
-                    editable={false}
-                />
-            </View>
-            <View>
-                <View>
-                    <TextInput 
-                        placeholder="DDD" 
-                        value={userData.ddd}
-                        onChangeText={(text) => setUserData({...userData, ddd : formatarDDD(text)})}
-                        editable={editable}
+                        style={[styles.inputCPF, styles.componentInput]}
+                        placeholder="CPF" 
+                        value={userData.cpf}
+                        onChangeText={(text) => setUserData({...userData, cpf : formatarCPF(text) })}
+                        editable={false}
                     />
                 </View>
                 <View>
-                    <TextInput 
-                        placeholder="Telefone" 
-                        value={userData.telefone}
-                        onChangeText={(text) => setUserData({...userData, telefone : formatarTelefone(text)})}
-                        editable={editable}
+                    <TextInput
+                        style={[styles.inputDataNasc, styles.componentInput]}
+                        placeholder="Data de Nascimento" 
+                        value={userData.dataNasc}
+                        onChangeText={(text) => setUserData({...userData, dataNasc : formatarData(text)})}
+                        editable={false}
                     />
                 </View>
-            </View>
-            <View>
-                <TextInput 
-                    placeholder="Email" 
-                    value={userData.email} 
-                    onChangeText={(text) => setUserData({...userData, email : text})}
-                    editable={false}
-                />    
-            </View>
+                <View>
+                    <View>
+                        <TextInput
+                            style={[styles.inputDDD, styles.componentInput]}
+                            placeholder="DDD" 
+                            value={userData.ddd}
+                            onChangeText={(text) => setUserData({...userData, ddd : formatarDDD(text)})}
+                            editable={editable}
+                        />
+                    </View>
+                    <View>
+                        <TextInput
+                            style={[styles.inputTelefone, styles.componentInput]}
+                            placeholder="Telefone" 
+                            value={userData.telefone}
+                            onChangeText={(text) => setUserData({...userData, telefone : formatarTelefone(text)})}
+                            editable={editable}
+                        />
+                    </View>
+                </View>
+                <View>
+                    <TextInput
+                        style={[styles.inputEmail, styles.componentInput]}
+                        placeholder="Email" 
+                        value={userData.email} 
+                        onChangeText={(text) => setUserData({...userData, email : text})}
+                        editable={false}
+                    />    
+                </View>
+            </ScrollView>
             {error && <Text style={styles.error}>Erro ao buscar dados. Tente novamente.</Text>}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        marginVertical: 50,
+    },    
+    scrollViewComponent: {
+        width: '100%',
+        marginBottom: 40,
+        paddingBottom: 40,
+    },
+    componentInput: {
+        backgroundColor: '#e5e5e5',
+        marginVertical: 10,
+        borderRadius: 16,
+        paddingLeft: 10,
+    },
+    inputNome: {
+        width: 200,
+    },
+    inputCPF: {
+        width: 160,
+    },
+    inputDataNasc: {
+        width: 100,
+    },
+    inputDDD: {
+        width: 80,
+    },
+    inputTelefone: {
+        width: 100,
+    },
+    inputEmail: {
+        width: 300,
+    },
+})
