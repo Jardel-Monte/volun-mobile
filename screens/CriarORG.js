@@ -3,7 +3,9 @@ import { Text, TextInput, TouchableOpacity, ScrollView, View, StyleSheet, Alert,
 import { auth } from '../services/firebase-config';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 import uuid from 'react-native-uuid';
+import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+
 
 const CriarORG = () => {
   const [nome, setNome] = useState('');
@@ -13,6 +15,7 @@ const CriarORG = () => {
   const [ddd, setDDD] = useState('');
   const [telefone, setTelefone] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const navigation = useNavigation();
 
 
   const pickImage = async () => {
@@ -40,9 +43,8 @@ const CriarORG = () => {
     }
 
     try {
-      // 1. Fazer o upload da imagem para o Firebase Storage
-      const storage = getStorage(); // Inicializar o Firebase Storage
-      const imageName = `${uuid.v4()}.jpg`; // Nome único para a imagem
+      const storage = getStorage();
+      const imageName = `${uuid.v4()}.jpg`;
       const imageRef = ref(storage, `logo_organizacao/${imageName}`);
 
       const response = await fetch(selectedImage);
@@ -51,18 +53,15 @@ const CriarORG = () => {
       console.log('Fazendo upload da imagem...');
       await uploadBytes(imageRef, blob);
 
-      // 2. Obter a URL da imagem
       const imageUrl = await getDownloadURL(imageRef);
       console.log('URL da imagem carregada:', imageUrl);
 
-      // 3. Verificar usuário logado
       const userId = auth.currentUser?.uid;
       if (!userId) {
         Alert.alert('Erro', 'Usuário não está logado.');
         return;
       }
 
-      // 4. Dados da organização
       const organizacaoData = {
         nome,
         razao_social,
@@ -74,8 +73,6 @@ const CriarORG = () => {
         criador_id: userId,
       };
 
-      // 5. Enviar para a API
-      console.log(organizacaoData)
       const apiResponse = await fetch('https://volun-api-eight.vercel.app/organizacao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,14 +81,8 @@ const CriarORG = () => {
 
       if (apiResponse.ok) {
         Alert.alert('Sucesso', 'Organização criada com sucesso!');
-        // Limpar os campos após o sucesso
-        setNome('');
-        setRazaoSocial('');
-        setDescricao('');
-        setCNPJ('');
-        setDDD('');
-        setTelefone('');
-        setSelectedImage(null);
+        // Redirecionar o usuário para a tela HomeScreen
+        navigation.navigate('HomeScreen');
       } else {
         const errorText = await apiResponse.text();
         Alert.alert('Erro', `Erro ao criar organização: ${errorText}`);

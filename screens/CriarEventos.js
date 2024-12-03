@@ -6,6 +6,7 @@ import { Chip } from 'react-native-paper';
 import axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 import uuid from 'react-native-uuid'; // Para gerar nomes únicos de arquivos (instale com `npm install react-native-uuid`)
+import { useRoute } from '@react-navigation/native'
 
 const CriarEventos = () => {
   const [titulo, setTitulo] = useState('');
@@ -28,6 +29,8 @@ const CriarEventos = () => {
   const [availableTags, setAvailableTags] = useState([
     'Solidariedade', 'Educação', 'Saúde', 'Meio Ambiente', 'Cultura', 'Voluntariado', 'Tecnologia', // Tags disponíveis
   ]);
+  const route = useRoute();
+  const orgId = route.params?.orgId;
 
   const storage = getStorage(); // Inicializa o Firebase Storage
 
@@ -166,8 +169,6 @@ const CriarEventos = () => {
       const imageUrl = await getDownloadURL(imageRef);
       console.log("URL da imagem carregada:", imageUrl);
 
-      // Variável para ID da ONG
-      const ongId = "67164394514786093e3870fd";
   
       // Dados para criação do endereço
       const enderecoData = {
@@ -235,7 +236,7 @@ const CriarEventos = () => {
         data_inicio: dataInicioISO,
         data_fim: dataFimISO,
         vaga_limite: Number(vagaLimite),
-        ong_id: ongId,
+        ong_id: orgId,
         endereco_id: enderecoId,
         imagem: imageUrl,
       };

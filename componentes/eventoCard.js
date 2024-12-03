@@ -9,23 +9,25 @@ export default function EventoCard({ evento }) {
         return null;
     }
 
-    const { _id, titulo, imagem, endereco } = evento;
+    const { _id, titulo, imagem, endereco_id } = evento;
 
     return (
         <TouchableOpacity 
             style={styles.card}
-            onPress={() => navigation.navigate('EventoInfo', { eventoId: _id , endereco })}
+            onPress={() => navigation.navigate('EventoInfo', { eventoId: _id, endereco: endereco_id })}
         >
             <Image source={{ uri: imagem }} style={styles.imagemEvento} />
             <View style={styles.infoContainer}>
                 <Text style={styles.localizacao}>
-                    {endereco?.bairro} - {endereco?.cidade}, {endereco?.estado}
+                    {endereco_id?.bairro || 'Bairro não informado'} - {endereco_id?.cidade || 'Cidade não informada'}, {endereco_id?.estado || 'Estado não informado'}
                 </Text>
                 <Text style={styles.titulo}>{titulo}</Text>
             </View>
         </TouchableOpacity>
     );
 }
+
+
 
 const styles = StyleSheet.create({
     card: {
