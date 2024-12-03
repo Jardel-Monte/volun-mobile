@@ -9,7 +9,7 @@ const CategorySlider = ({ category, eventos }) => {
       <FlatList
         horizontal
         data={eventos}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => <EventoCard evento={item} />}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.sliderContent}

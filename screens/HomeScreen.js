@@ -31,49 +31,51 @@ export default function HomeScreen({ navigation }) {
             try {
                 const eventosResponse = await fetch('https://volun-api-eight.vercel.app/eventos');
                 const eventosData = await eventosResponse.json();
-
+    
                 setEventos(eventosData);
-
+    
                 // Set featured events (using the first 5 events if no 'featured' field exists)
                 const featured = eventosData.filter(evento => evento.featured).slice(0, 5);
                 setFeaturedEventos(featured.length > 0 ? featured : eventosData.slice(0, 5));
-
+    
                 // Set upcoming events (using the next 5 events if no 'date' field exists)
                 const currentDate = new Date();
                 const upcoming = eventosData
-                    .filter(evento => new Date(evento.date) > currentDate)
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .filter(evento => new Date(evento.data_inicio) > currentDate)  // Certifique-se de que a data de início existe
+                    .sort((a, b) => new Date(a.data_inicio) - new Date(b.data_inicio))
                     .slice(0, 5);
                 setUpcomingEventos(upcoming.length > 0 ? upcoming : eventosData.slice(5, 10));
-
+    
                 // Group eventos by category
                 const grouped = eventosData.reduce((acc, evento) => {
-                    const category = evento.categoria || 'Outros';
+                    const category = evento.tags && evento.tags.length > 0 ? evento.tags[0] : 'Outros'; // Usando o primeiro tag como categoria
                     if (!acc[category]) {
                         acc[category] = [];
                     }
                     acc[category].push(evento);
                     return acc;
                 }, {});
-
+    
                 // Ensure each category has at least 3 events
                 Object.keys(grouped).forEach(category => {
                     if (grouped[category].length < 3) {
                         const additionalEvents = eventosData
-                            .filter(e => e.categoria !== category)
+                            .filter(e => e.tags[0] !== category)  // Filtrando as tags para garantir a adição de eventos diferentes
                             .slice(0, 3 - grouped[category].length);
                         grouped[category] = [...grouped[category], ...additionalEvents];
                     }
                 });
-
+    
                 setGroupedEventos(grouped);
             } catch (error) {
                 console.error('Erro ao carregar eventos:', error);
             }
         };
-
+    
         fetchEventos();
     }, []);
+    
+    
 
     return (
         <View style={styles.container}>
