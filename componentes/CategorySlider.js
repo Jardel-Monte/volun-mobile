@@ -2,12 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import EventoCard from './eventoCard';
 
-interface CategorySliderProps {
-  category: string;
-  eventos: any[];
-}
-
-const CategorySlider: React.FC<CategorySliderProps> = ({ category, eventos }) => {
+const CategorySlider = ({ category, eventos }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.categoryTitle}>{category}</Text>
