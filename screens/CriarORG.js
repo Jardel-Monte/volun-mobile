@@ -115,9 +115,14 @@ const CriarORG = () => {
         style={styles.textArea}
         placeholder="Descrição"
         value={descricao}
-        onChangeText={setDescricao}
-        multiline
+        onChangeText={(text) => {
+          if (text.length <= 500) {
+           setDescricao(text);
+          }
+        }}
+      multiline
       />
+
 
       <TextInput
         style={styles.input}
@@ -140,6 +145,7 @@ const CriarORG = () => {
         placeholder="Telefone"
         value={telefone}
         onChangeText={setTelefone}
+        keyboardType="numeric"
       />
 
         <Text style={styles.sectionTitle}>Galeria</Text>
