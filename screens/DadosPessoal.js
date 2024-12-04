@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import { Text, TextInput, View, StyleSheet } from "react-native";
 import axios from "axios";
 import { getAuth } from "../services/firebase-config";
 

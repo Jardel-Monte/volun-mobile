@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import EventoCard from '../componentes/eventoCard';
 
 export default function OrgScreen() {
@@ -17,10 +17,8 @@ export default function OrgScreen() {
     });
     const [activeTab, setActiveTab] = useState('upcoming');
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
 
-    const navigateToEventoInfo = (eventoId) => {
-        navigation.navigate('EventoInfo', { eventoId });
-      };
 
     const fetchOrganizations = async (userId) => {
         try {
@@ -76,8 +74,7 @@ export default function OrgScreen() {
                     setEventos(eventosDetalhes);
                     categorizeEvents(eventosDetalhes);
                 } catch (error) {
-                    console.error("Erro ao buscar eventos:", error);
-                    Alert.alert("Erro", "Não foi possível carregar os eventos. Por favor, tente novamente mais tarde.");
+                    
                 } finally {
                     setLoading(false);
                 }
@@ -125,32 +122,41 @@ export default function OrgScreen() {
     };
 
     const handleDeleteOrg = async () => {
-        Alert.alert(
-            "Confirmar exclusão",
-            "Tem certeza que deseja excluir esta organização?",
-            [
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                },
-                { 
-                    text: "Sim", 
-                    onPress: async () => {
-                        try {
-                            await fetch(`https://volun-api-eight.vercel.app/organizacao/${selectedOrg._id}`, { method: 'DELETE' });
-                            const auth = getAuth();
-                            const user = auth.currentUser;
-                            if (user) {
-                                fetchOrganizations(user.uid);
+    Alert.alert(
+        "Confirmar exclusão",
+        "Tem certeza que deseja excluir esta organização?",
+        [
+            {
+                text: "Cancelar",
+                style: "cancel"
+            },
+            {
+                text: "Sim",
+                onPress: async () => {
+                    try {
+                        await fetch(`https://volun-api-eight.vercel.app/organizacao/${selectedOrg._id}`, { method: 'DELETE' });
+
+                        const auth = getAuth();
+                        const user = auth.currentUser;
+
+                        if (user) {
+                            const updatedOrganizations = await fetchOrganizations(user.uid) || []; // Garante um array mesmo se undefined
+                            
+                            // Verifica se há organizações restantes
+                            if (updatedOrganizations.length === 0) {
+                                navigation.replace('OrgScreen'); // Recarrega a tela com mensagem padrão
                             }
-                        } catch (error) {
-                            console.error("Erro ao excluir a organização:", error);
                         }
+                    } catch (error) {
+                        console.error("Erro ao excluir a organização:", error);
                     }
                 }
-            ]
-        );
-    };
+            }
+        ]
+    );
+};
+
+    
 
     if (loading) {
         return (
