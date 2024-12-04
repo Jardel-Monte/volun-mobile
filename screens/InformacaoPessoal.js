@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 
 import DadosPessoal from "./DadosPessoal";
 import DadosEndereco from "./DadosEndereco";
+import { globalStyles, theme } from "../styles/theme";
 
 export default function InformacaoPessoal() {
     const [editable, setEditable] = useState(false);
@@ -153,27 +154,27 @@ export default function InformacaoPessoal() {
             <ScrollView style={styles.componentScrollView}>
                 {renderActiveComponent()}
             </ScrollView>
-            <View>
-                <TouchableOpacity onPress={() => setActiveComponent("DadosPessoal")}>
-                    <Text>Dados Pessoais</Text>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.buttonContent} onPress={() => setActiveComponent("DadosPessoal")}>
+                    <Text style={styles.buttonTextContent}>Dados Pessoais</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setActiveComponent("DadosEndereço")}>
-                    <Text>Endereço</Text>
+                <TouchableOpacity style={styles.buttonContent} onPress={() => setActiveComponent("DadosEndereço")}>
+                    <Text style={styles.buttonTextContent}>Endereço</Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.componentButtons}>
+            <View style={styles.generateButtonContainer}>
                 {editable ? (
-                    <View style={styles.buttonsContainer}>
-                        <TouchableOpacity onPress={handleSaveChanges}>
-                            <Text>Salvar</Text>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.buttonContent} onPress={handleSaveChanges}>
+                            <Text style={styles.buttonTextContent}>Salvar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleCancelChanges}>
-                            <Text>Cancelar</Text>
+                        <TouchableOpacity style={styles.buttonContent} onPress={handleCancelChanges}>
+                            <Text style={styles.buttonTextContent}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <TouchableOpacity onPress={toggleEditable}>
-                        <Text>Editar</Text>
+                    <TouchableOpacity style={styles.buttonContent} onPress={toggleEditable}>
+                        <Text style={styles.buttonTextContent}>Editar</Text> 
                     </TouchableOpacity>
                 )}
             </View>
@@ -192,7 +193,32 @@ const styles = StyleSheet.create({
     componentScrollView: {
         height: 'auto',
     },
-    componentButtons: {
+    generateButtonContainer: {
         marginVertical: 10,
+        marginHorizontal: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+    },
+    buttonContainer: {
+        margin: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    buttonContent: {
+        backgroundColor: theme.colors.primary,
+        width: 100,
+        paddingVertical: 12,
+        marginHorizontal: 20,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    buttonTextContent: {
+        color: theme.colors.white,
+        textAlign: 'center',
     }
 })

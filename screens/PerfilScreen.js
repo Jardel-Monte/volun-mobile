@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { auth } from '../services/firebase-config'; // Importar Firebase config
 import { signOut } from 'firebase/auth'; // Para função de logout
-import { theme } from '../styles/theme'; // Importar seu tema global
-
+import { globalStyles, theme } from '../styles/theme'; // Importar seu tema global
 import InformacaoPessoal from './InformacaoPessoal';
 import Historico from './Historico';
 
@@ -102,11 +101,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#FBFBFE',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 150,
+        paddingTop: 100,
         height: 'auto',
     },
     profileComponent: {
-        paddingVertical: 30,
+        paddingVertical: 20,
         display: 'flex',
         flexDirection: 'row',
     },
@@ -114,7 +113,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        marginBottom: 20,
     },
     textContainer: {
         flexDirection: 'column',
@@ -132,7 +130,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     logoutButton: {
-        marginTop: 40,
+        marginTop: 10,
         backgroundColor: theme.colors.primary, // Cor primária do seu tema
         paddingVertical: 12,
         paddingHorizontal: 30,
@@ -154,7 +152,7 @@ const styles = StyleSheet.create({
     },
     componentView: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        gap: 20,
     },
     componentButton: {
         backgroundColor: theme.colors.primary,

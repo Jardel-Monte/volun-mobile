@@ -129,7 +129,7 @@ export default function DadosPessoal({ userData, setUserData, editable }) {
                         editable={false}
                     />
                 </View>
-                <View>
+                <View style={styles.alignItemsComponent}>
                     <View>
                         <TextInput
                             style={[styles.inputDDD, styles.componentInput]}
@@ -179,6 +179,11 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         paddingBottom: 20,
     },
+    alignItemsComponent: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'baseline',
+    },
     componentInput: {
         backgroundColor: '#e5e5e5',
         marginVertical: 10,
@@ -199,6 +204,7 @@ const styles = StyleSheet.create({
     },
     inputTelefone: {
         width: 100,
+        marginLeft: 10
     },
     inputEmail: {
         width: 300,
