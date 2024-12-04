@@ -36,17 +36,12 @@ export default function EntrarConta({ navigation }) {
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-            console.log('Usuário autenticado com sucesso:', userCredential.user);
-            console.log('UID do usuário:', uid);
 
             const uid = userCredential.user.uid;
             console.log('UID do usuário:', uid);
 
             // Verificar se o usuário já está cadastrado na tabela 'usuarios' do MongoDB
             const usuario = await verificarUsuario(uid);
-
-            console.log('Usuário autenticado com sucesso:', userCredential.user);
-            console.log('UID do usuário:', uid);
 
             if (usuario) {
                 // Se o usuário já existe, navegue para a HomeScreen

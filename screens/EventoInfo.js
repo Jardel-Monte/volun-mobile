@@ -1,37 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import { format } from 'date-fns';
-import { auth } from '../services/firebase-config'; // Certifique-se de ajustar o caminho para o seu firebase-config.js
+import { auth } from '../services/firebase-config';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const EventoInfo = ({ route }) => {
-  const { eventoId, endereco } = route.params;
+  const { eventoId } = route.params;
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isParticipating, setIsParticipating] = useState(false); // Controle da participação
-  const [participacaoId, setParticipacaoId] = useState(null); // Armazena o ID da participação
-  const [newDataInicio, setnewDataInicio] = useState('');
-  const [newDataFim, setDataFimFormatada] = useState('');
+  const [isParticipating, setIsParticipating] = useState(false);
+  const [participacaoId, setParticipacaoId] = useState(null);
+  const [newDataInicio, setNewDataInicio] = useState('');
+  const [newDataFim, setNewDataFim] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
-    fetch(`https://volun-api-eight.vercel.app/eventos/${eventoId}`)
-      .then(response => response.json())
-      .then(data => {
-        setEvento(data);
-        setnewDataInicio(format(new Date(data.data_inicio), 'dd/MM/yyyy HH:mm'));
-        setDataFimFormatada(format(new Date(data.data_fim), 'dd/MM/yyyy HH:mm'));
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
-
-    // Verificar participação do usuário assim que o evento for carregado
+    fetchEventoDetails();
     verificarParticipacao();
   }, [eventoId]);
 
-  // Função para verificar se o usuário já está participando do evento
+  const fetchEventoDetails = async () => {
+    try {
+      const response = await fetch(`https://volun-api-eight.vercel.app/eventos/${eventoId}`);
+      const data = await response.json();
+      setEvento(data);
+      setNewDataInicio(format(new Date(data.data_inicio), 'dd/MM/yyyy HH:mm'));
+      setNewDataFim(format(new Date(data.data_fim), 'dd/MM/yyyy HH:mm'));
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do evento:", error);
+      Alert.alert("Erro", "Não foi possível carregar os detalhes do evento.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const verificarParticipacao = async () => {
     const userId = auth.currentUser?.uid;
     if (!userId) return;
@@ -44,8 +48,8 @@ const EventoInfo = ({ route }) => {
       if (response.ok) {
         const data = await response.json();
         if (data && data._id) {
-          setParticipacaoId(data._id); // Salva o ID próprio do documento
-          setIsParticipating(true); // Marca como participante
+          setParticipacaoId(data._id);
+          setIsParticipating(true);
         }
       }
     } catch (error) {
@@ -53,7 +57,6 @@ const EventoInfo = ({ route }) => {
     }
   };
 
-  // Função para cancelar a participação do usuário
   const handleCancelarParticipacao = async () => {
     if (!participacaoId) return;
 
@@ -65,57 +68,68 @@ const EventoInfo = ({ route }) => {
 
       if (response.ok) {
         Alert.alert("Sucesso", "Participação cancelada com sucesso!");
-        setIsParticipating(false); // Atualiza o estado para refletir a remoção da participação
-        setParticipacaoId(null); // Limpa o ID da participação
+        setIsParticipating(false);
+        setParticipacaoId(null);
       } else {
         throw new Error("Erro ao cancelar participação");
       }
     } catch (error) {
       console.error("Erro ao cancelar participação:", error);
+      Alert.alert("Erro", "Não foi possível cancelar a participação.");
     }
   };
 
-  // Função para confirmar a participação do usuário
   const handleParticipar = async () => {
     if (isParticipating) {
-      // Se já estiver participando, exibe o modal de confirmação
-      setShowModal(true);
+      Alert.alert(
+        "Cancelar Participação",
+        "Tem certeza que deseja cancelar sua participação?",
+        [
+          { text: "Não", style: "cancel" },
+          { text: "Sim", onPress: handleCancelarParticipacao }
+        ]
+      );
       return;
     }
 
     setIsProcessing(true);
     const userId = auth.currentUser?.uid;
-    if (!userId) return console.error("Usuário não está logado");
-
-    const participacaoData = {
-      evento_id: eventoId,
-      usuario_id: userId,
-    };
+    if (!userId) {
+      Alert.alert("Erro", "Você precisa estar logado para participar.");
+      setIsProcessing(false);
+      return;
+    }
 
     try {
       const response = await fetch("https://volun-api-eight.vercel.app/participacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(participacaoData),
+        body: JSON.stringify({ evento_id: eventoId, usuario_id: userId }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setIsParticipating(true); // Marca como participante
-        setParticipacaoId(data._id); // Salva o ID do documento
+        setIsParticipating(true);
+        setParticipacaoId(data._id);
         Alert.alert("Sucesso", "Participação confirmada!");
       } else {
         throw new Error("Erro ao confirmar participação");
       }
     } catch (error) {
       console.error("Erro ao participar:", error);
+      Alert.alert("Erro", "Não foi possível confirmar sua participação.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1F0171" />
+        <Text style={styles.loadingText}>Carregando detalhes do evento...</Text>
+      </View>
+    );
   }
 
   if (!evento) {
@@ -127,24 +141,23 @@ const EventoInfo = ({ route }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.container}>
       <Image source={{ uri: evento.imagem }} style={styles.imagemEvento} />
-      <Text style={styles.title}>{evento.titulo}</Text>
-      {evento.tags && evento.tags.length > 0 && (
-        <View style={styles.tagsContainer}>
-          {evento.tags.map((tag, index) => (
-            <View key={index} style={styles.tagBox}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>{evento.titulo}</Text>
+        {evento.tags && evento.tags.length > 0 && (
+          <View style={styles.tagsContainer}>
+            {evento.tags.map((tag, index) => (
+              <View key={index} style={styles.tagBox}>
+                <Text style={styles.tagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
-      {/* Botão de Participar ou Cancelar */}
-      <View style={styles.container}>
         <TouchableOpacity
-          style={styles.button}
-          onPress={isParticipating ? handleCancelarParticipacao : handleParticipar}
+          style={[styles.button, isParticipating && styles.cancelButton]}
+          onPress={handleParticipar}
           disabled={isProcessing}
         >
           {isProcessing ? (
@@ -155,119 +168,150 @@ const EventoInfo = ({ route }) => {
             </Text>
           )}
         </TouchableOpacity>
-      </View>
 
-      {/* Informações do Evento */}
-      <Text style={styles.organization}>{evento.ong_id?.nome}</Text>
-      <Text style={styles.address}>
-        {endereco?.logradouro}, {endereco?.cidade} - {endereco?.estado}
-      </Text>
-      <Text style={styles.cep}>CEP: {endereco?.cep}</Text>
-      <Text style={styles.date}>Início: {newDataInicio}</Text>
-      <Text style={styles.date}>Fim: {newDataFim}</Text>
-      <Text style={styles.description}>{evento.descricao}</Text>
+        <View style={styles.infoSection}>
+          <View style={styles.infoItem}>
+            <Ionicons name="business-outline" size={24} color="#1F0171" />
+            <Text style={styles.infoText}>{evento.ong_id?.nome}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons name="location-outline" size={24} color="#1F0171" />
+            <Text style={styles.infoText}>
+              {evento.endereco_id?.logradouro}, {evento.endereco_id?.cidade} - {evento.endereco_id?.estado}
+            </Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons name="mail-outline" size={24} color="#1F0171" />
+            <Text style={styles.infoText}>CEP: {evento.endereco_id?.cep}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Ionicons name="calendar-outline" size={24} color="#1F0171" />
+            <View>
+              <Text style={styles.infoText}>Início: {newDataInicio}</Text>
+              <Text style={styles.infoText}>Fim: {newDataFim}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.descriptionTitle}>Sobre o Evento</Text>
+          <Text style={styles.description}>{evento.descricao}</Text>
+        </View>
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    alignItems: 'center',
+    flex: 1,
     backgroundColor: '#fff',
-    padding: 10
   },
-  loading: {
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
-
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#1F0171',
+  },
+  contentContainer: {
+    padding: 20,
+  },
   button: {
     backgroundColor: '#1F0171',
     paddingVertical: 12,
-    paddingHorizontal: 100,
-    borderRadius: 8,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    marginVertical: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
+    alignSelf: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#FF3B30',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  
   imagemEvento: {
     width: '100%',
-    height: 200,
+    height: 250,
     resizeMode: 'cover',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'justify',
-    marginBottom: 10,
+    textAlign: 'center',
+    marginVertical: 15,
+    color: '#1F0171',
   },
   tagsContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   tagBox: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#E0E0E0',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
-    marginRight: 5,
-    marginBottom: 5,
+    margin: 3,
   },
   tagText: {
-    fontSize: 14,
-    color: '#fff',
+    fontSize: 12,
+    color: '#1F0171',
   },
-  organization: {
-    fontSize: 18,
-    color: '#888',
-    textAlign: 'center',
+  infoSection: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
   },
-  address: {
+  infoText: {
     fontSize: 16,
-    textAlign: 'center',
-    color: '#555',
+    color: '#333',
+    marginLeft: 10,
+    flex: 1,
   },
-  cep: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#555',
-    marginBottom: 10,
+  descriptionContainer: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    padding: 15,
   },
-  date: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#888',
+  descriptionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F0171',
     marginBottom: 10,
-    padding: 5
   },
   description: {
     fontSize: 16,
-    textAlign: 'justify',
-    lineHeight: 22,
-    marginBottom: 20,
-    padding: 10
+    lineHeight: 24,
+    color: '#333',
   },
   errorText: {
     fontSize: 18,
     color: 'red',
     textAlign: 'center',
+    marginTop: 20,
   },
 });
 
 export default EventoInfo;
+

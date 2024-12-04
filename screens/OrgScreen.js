@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import EventoCard from '../componentes/eventoCard';
 
 export default function OrgScreen() {
@@ -10,7 +10,15 @@ export default function OrgScreen() {
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [loading, setLoading] = useState(true);
     const [eventos, setEventos] = useState([]);
+    const [categorizedEvents, setCategorizedEvents] = useState({
+        upcoming: [],
+        ongoing: [],
+        past: [],
+    });
+    const [activeTab, setActiveTab] = useState('upcoming');
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
+
 
     const fetchOrganizations = async (userId) => {
         try {
@@ -50,55 +58,63 @@ export default function OrgScreen() {
             if (selectedOrg) {
                 setLoading(true);
                 try {
-                    setEventos([]); // Limpa eventos antes de carregar
                     const response = await fetch(`https://volun-api-eight.vercel.app/eventos/ong/${selectedOrg._id}`);
-                    const responseText = await response.text();
-                    console.log('Raw API response:', responseText);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    let data;
-                    try {
-                        data = JSON.parse(responseText);
-                    } catch (parseError) {
-                        console.error('Error parsing JSON:', parseError);
-                        console.error('Response that caused the error:', responseText);
-                        throw new Error('Invalid JSON response from server');
-                    }
-
+                    const data = await response.json();
                     const eventosDetalhes = data.map((evento) => ({
-                        id: evento._id,
+                        _id: evento._id,
                         titulo: evento.titulo,
                         descricao: evento.descricao,
                         ongNome: selectedOrg.nome,
                         dataInicio: evento.data_inicio,
-                        imgUrl: evento.imagem,
+                        dataFim: evento.data_fim,
+                        imagem: evento.imagem,
                         vagaLimite: evento.vaga_limite,
-                        endereco: evento.endereco_id
-                            ? `${evento.endereco_id.bairro}, ${evento.endereco_id.cidade} - ${evento.endereco_id.estado}`
-                            : "Endereço Indefinido",
+                        endereco_id: evento.endereco_id,
                     }));
                     setEventos(eventosDetalhes);
+                    categorizeEvents(eventosDetalhes);
                 } catch (error) {
-                    console.error("Erro ao buscar eventos:", error);
-                    Alert.alert("Erro", "Não foi possível carregar os eventos. Por favor, tente novamente mais tarde.");
+                    
                 } finally {
                     setLoading(false);
                 }
             } else {
-                setEventos([]); // Limpa eventos se nenhuma organização for selecionada
+                setEventos([]);
+                setCategorizedEvents({ upcoming: [], ongoing: [], past: [] });
             }
         };
 
         fetchEventos();
     }, [selectedOrg]);
 
+    const categorizeEvents = (events) => {
+        const now = new Date();
+        const categorized = {
+            upcoming: [],
+            ongoing: [],
+            past: [],
+        };
+
+        events.forEach((event) => {
+            const startDate = new Date(event.dataInicio);
+            const endDate = new Date(event.dataFim);
+
+            if (startDate > now) {
+                categorized.upcoming.push(event);
+            } else if (startDate <= now && endDate >= now) {
+                categorized.ongoing.push(event);
+            } else {
+                categorized.past.push(event);
+            }
+        });
+
+        setCategorizedEvents(categorized);
+    };
+
     const handleDeleteEvento = async (id) => {
         try {
             await fetch(`https://volun-api-eight.vercel.app/eventos/${id}`, { method: 'DELETE' });
-            setEventos((prevEventos) => prevEventos.filter((evento) => evento.id !== id));
+            setEventos((prevEventos) => prevEventos.filter((evento) => evento._id !== id));
             console.log(`Evento ${id} deletado com sucesso.`);
         } catch (error) {
             console.error("Erro ao excluir evento:", error);
@@ -106,32 +122,41 @@ export default function OrgScreen() {
     };
 
     const handleDeleteOrg = async () => {
-        Alert.alert(
-            "Confirmar exclusão",
-            "Tem certeza que deseja excluir esta organização?",
-            [
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                },
-                { 
-                    text: "Sim", 
-                    onPress: async () => {
-                        try {
-                            await fetch(`https://volun-api-eight.vercel.app/organizacao/${selectedOrg._id}`, { method: 'DELETE' });
-                            const auth = getAuth();
-                            const user = auth.currentUser;
-                            if (user) {
-                                fetchOrganizations(user.uid);
+    Alert.alert(
+        "Confirmar exclusão",
+        "Tem certeza que deseja excluir esta organização?",
+        [
+            {
+                text: "Cancelar",
+                style: "cancel"
+            },
+            {
+                text: "Sim",
+                onPress: async () => {
+                    try {
+                        await fetch(`https://volun-api-eight.vercel.app/organizacao/${selectedOrg._id}`, { method: 'DELETE' });
+
+                        const auth = getAuth();
+                        const user = auth.currentUser;
+
+                        if (user) {
+                            const updatedOrganizations = await fetchOrganizations(user.uid) || []; // Garante um array mesmo se undefined
+                            
+                            // Verifica se há organizações restantes
+                            if (updatedOrganizations.length === 0) {
+                                navigation.replace('OrgScreen'); // Recarrega a tela com mensagem padrão
                             }
-                        } catch (error) {
-                            console.error("Erro ao excluir a organização:", error);
                         }
+                    } catch (error) {
+                        console.error("Erro ao excluir a organização:", error);
                     }
                 }
-            ]
-        );
-    };
+            }
+        ]
+    );
+};
+
+    
 
     if (loading) {
         return (
@@ -201,18 +226,38 @@ export default function OrgScreen() {
 
             <View style={styles.layout}>
                 <Text style={styles.titleEvents}>Eventos criados:</Text>
-                {eventos.length > 0 ? (
+                <View style={styles.tabContainer}>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+                        onPress={() => setActiveTab('upcoming')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>Próximos</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'ongoing' && styles.activeTab]}
+                        onPress={() => setActiveTab('ongoing')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'ongoing' && styles.activeTabText]}>Em andamento</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'past' && styles.activeTab]}
+                        onPress={() => setActiveTab('past')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>Passados</Text>
+                    </TouchableOpacity>
+                </View>
+                {categorizedEvents[activeTab].length > 0 ? (
                     <View style={styles.eventCards}>
-                        {eventos.map((evento) => (
+                        {categorizedEvents[activeTab].map((evento) => (
                             <EventoCard
-                                key={evento.id}
+                                key={evento._id}
                                 evento={evento}
-                                onDelete={() => handleDeleteEvento(evento.id)}
+                                onDelete={() => handleDeleteEvento(evento._id)}
                             />
                         ))}
                     </View>
                 ) : (
-                    <Text style={styles.noEvents}>Não há eventos para mostrar.</Text>
+                    <Text style={styles.noEvents}>Não há eventos para mostrar nesta categoria.</Text>
                 )}
             </View>
         </ScrollView>
@@ -337,5 +382,29 @@ const styles = StyleSheet.create({
     eventCards: {
         width: '100%',
     },
+    tabContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    tab: {
+        flex: 1,
+        padding: 10,
+        alignItems: 'center',
+        borderBottomWidth: 2,
+        borderBottomColor: '#f0f0f0',
+    },
+    activeTab: {
+        borderBottomColor: '#1F0171',
+    },
+    tabText: {
+        color: '#888',
+        fontSize: 14,
+    },
+    activeTabText: {
+        color: '#1F0171',
+        fontWeight: 'bold',
+    },
 });
+
 
