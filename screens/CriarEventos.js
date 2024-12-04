@@ -26,6 +26,7 @@ const CriarEventos = () => {
   const [showInicioPicker, setShowInicioPicker] = useState(false);
   const [showFinalPicker, setShowFinalPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [erro, setErro] = useState([]);
   const [availableTags, setAvailableTags] = useState([
     'Solidariedade', 'Educação', 'Saúde', 'Meio Ambiente', 'Cultura', 'Voluntariado', 'Tecnologia', // Tags disponíveis
   ]);
@@ -360,20 +361,34 @@ const CriarEventos = () => {
           value={titulo}
           onChangeText={setTitulo}
         />
-        <TextInput
-          style={styles.textArea}
-          placeholder="Descrição"
-          value={descricao}
-          onChangeText={setDescricao}
-          multiline
-        />
+
+      <TextInput
+        style={styles.textArea}
+        placeholder="Descrição"
+        value={descricao}
+        onChangeText={(text) => {
+          if (text.length <= 500) {
+           setDescricao(text);
+          }
+        }}
+      multiline
+      />
+
+
         <TextInput
           style={styles.textArea}
           placeholder="Descrição"
           value={descricao2}
-          onChangeText={setDescricao2}
-          multiline
+          onChangeText={(descricao2) => {
+            if (Text.length <= 500) {
+             setDescricao(descricao2);
+            }
+          }}
+        multiline
         />
+
+
+
       </View>
 
       <View style={styles.divider} />
@@ -451,16 +466,37 @@ const CriarEventos = () => {
 
       <View style={styles.divider} />
 
+
+
+
+
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Vagas para Voluntários</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Quantidade de Vagas"
-          value={vagaLimite}
-          onChangeText={setVagaLimite}
-          keyboardType="numeric"
-        />
+          <Text style={styles.sectionTitle}>Vagas para Voluntários</Text>
+           <TextInput
+             style={styles.input}
+             placeholder="Quantidade de Vagas - min 1 , máx 4999"
+             value={vagaLimite}
+             onChangeText={(text) => {
+               const number = parseInt(text);
+               if (!isNaN(number) && number >= 1 && number <= 4999) {
+                 setVagaLimite(text);
+                 setErro(""); // Remove o erro se o valor for válido
+               } else if (text === "") {
+                 setVagaLimite("");
+                 setErro(""); // Remove o erro se o campo estiver vazio
+               } else {
+                 setErro("Número inválido!");
+               }
+             }}
+             keyboardType="numeric"
+           />
+           {erro !== "" && <Text style={styles.error}>{erro}</Text>}
       </View>
+
+
+
+
+
 
       <View style={styles.divider} />
 
@@ -618,3 +654,4 @@ const styles = StyleSheet.create({
 });
 
 export default CriarEventos;
+
