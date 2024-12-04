@@ -20,6 +20,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "algoliasearch": "^4.10.5",
+    "react-instantsearch-hooks": "^6.47.3",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "expo": "^52.0.14",
