@@ -12,7 +12,6 @@ const CriarEventos = () => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [descricao2, setDescricao2] = useState('');
-  const [tags, setTags] = useState('');
   const [vagaLimite, setVagaLimite] = useState('');
   const [logradouro, setLogradouro] = useState('');
   const [bairro, setBairro] = useState('');
@@ -26,8 +25,7 @@ const CriarEventos = () => {
   const [showInicioPicker, setShowInicioPicker] = useState(false);
   const [showFinalPicker, setShowFinalPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [erro, setErro] = useState([]);
-  const [availableTags, setAvailableTags] = useState([
+  const [availableTags, _setAvailableTags] = useState([
     'Solidariedade', 'Educação', 'Saúde', 'Meio Ambiente', 'Cultura', 'Voluntariado', 'Tecnologia', // Tags disponíveis
   ]);
   const route = useRoute();
@@ -124,7 +122,7 @@ const CriarEventos = () => {
   };
 
   const isValidDate = (dateString) => {
-    const [datePart, timePart] = dateString.split(' ');
+    const [datePart, _timePart] = dateString.split(' ');
     const [day, month, year] = datePart.split('/');
     const date = new Date(year, month - 1, day);
     return date.getFullYear() == year && date.getMonth() == month - 1 && date.getDate() == day;
@@ -280,7 +278,7 @@ const CriarEventos = () => {
     });
   };
 
-  const handleDateChange = (setDate, setShowPicker) => (event, selectedDate) => {
+  const handleDateChange = (setDate, setShowPicker) => (_event, selectedDate) => {
     setShowPicker(false);
     if (selectedDate) {
       setDate(formatDate(selectedDate));
@@ -361,34 +359,20 @@ const CriarEventos = () => {
           value={titulo}
           onChangeText={setTitulo}
         />
-
-      <TextInput
-        style={styles.textArea}
-        placeholder="Descrição"
-        value={descricao}
-        onChangeText={(text) => {
-          if (text.length <= 500) {
-           setDescricao(text);
-          }
-        }}
-      multiline
-      />
-
-
+        <TextInput
+          style={styles.textArea}
+          placeholder="Descrição"
+          value={descricao}
+          onChangeText={setDescricao}
+          multiline
+        />
         <TextInput
           style={styles.textArea}
           placeholder="Descrição"
           value={descricao2}
-          onChangeText={(descricao2) => {
-            if (Text.length <= 500) {
-             setDescricao(descricao2);
-            }
-          }}
-        multiline
+          onChangeText={setDescricao2}
+          multiline
         />
-
-
-
       </View>
 
       <View style={styles.divider} />
@@ -466,37 +450,16 @@ const CriarEventos = () => {
 
       <View style={styles.divider} />
 
-
-
-
-
       <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vagas para Voluntários</Text>
-           <TextInput
-             style={styles.input}
-             placeholder="Quantidade de Vagas - min 1 , máx 4999"
-             value={vagaLimite}
-             onChangeText={(text) => {
-               const number = parseInt(text);
-               if (!isNaN(number) && number >= 1 && number <= 4999) {
-                 setVagaLimite(text);
-                 setErro(""); // Remove o erro se o valor for válido
-               } else if (text === "") {
-                 setVagaLimite("");
-                 setErro(""); // Remove o erro se o campo estiver vazio
-               } else {
-                 setErro("Número inválido!");
-               }
-             }}
-             keyboardType="numeric"
-           />
-           {erro !== "" && <Text style={styles.error}>{erro}</Text>}
+        <Text style={styles.sectionTitle}>Vagas para Voluntários</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Quantidade de Vagas"
+          value={vagaLimite}
+          onChangeText={setVagaLimite}
+          keyboardType="numeric"
+        />
       </View>
-
-
-
-
-
 
       <View style={styles.divider} />
 
@@ -523,6 +486,7 @@ const CriarEventos = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -654,4 +618,3 @@ const styles = StyleSheet.create({
 });
 
 export default CriarEventos;
-
