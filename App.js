@@ -17,6 +17,8 @@ import MyTabs from './screens/MyTabs';
 import { AppRegistry } from 'react-native';
 import CriarEventos from './screens/CriarEventos';
 import CriarORG from './screens/CriarORG';
+import CategoriasScreen from './screens/CategoriasScreen';
+import SearchScreen from "./screens/SearchScreen";
 
 const Stack = createStackNavigator();
 
@@ -90,6 +92,16 @@ export default function App() {
         <Stack.Screen
           name='CriarORG'
           component={CriarORG}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='CategoriasScreen'
+          component={CategoriasScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='SearchScreen'
+          component={SearchScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
