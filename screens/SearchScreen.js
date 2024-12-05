@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { InstantSearch, useSearchBox, useHits, Configure } from "react-instantsearch-hooks";
 import algoliaClient from "../services/algolia-config";
 import EventoCard from "../componentes/eventoCard";
+import EventoCardFullWidth from "../componentes/eventoCard2";
 
 function Hits() {
   const { hits } = useHits();
@@ -14,7 +15,7 @@ function Hits() {
   return (
     <ScrollView contentContainerStyle={styles.resultsContainer}>
       {hits.map((hit) => (
-        <EventoCard key={hit.objectID} evento={hit} />
+        <EventoCardFullWidth key={hit.objectID} evento={hit} />
       ))}
     </ScrollView>
   );
@@ -39,7 +40,7 @@ function SearchInput({ searchQuery, setSearchQuery }) {
 }
 
 export default function SearchScreen({ route }) {
-  const { categoria } = route.params; // Recebendo a categoria da tela anterior
+  const categoria = route?.params?.categoria; // Recebendo a categoria da tela anterior
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -59,7 +60,18 @@ export default function SearchScreen({ route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, marginTop: 20, backgroundColor: "#fff" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 16, textAlign: "center" },
-  searchInput: { borderWidth: 1, borderColor: "#ccc", padding: 8, borderRadius: 8, marginBottom: 16 },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
   noResults: { textAlign: "center", color: "#888", fontSize: 18, marginTop: 20 },
-  resultsContainer: { paddingBottom: 20 },
+  resultsContainer: { 
+    paddingBottom: 20, 
+    flexDirection: "row", 
+    flexWrap: "wrap", // Permite quebra de linha
+    justifyContent: "space-around", // Ajusta o espaçamento entre os cards
+  },
 });
