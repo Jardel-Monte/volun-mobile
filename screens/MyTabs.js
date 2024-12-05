@@ -7,6 +7,7 @@ import OrgScreen from './OrgScreen';
 import NotificacoesScreen from './NotificacoesScreen';
 import SearchScreen from './SearchScreen';
 import PerfilScreen from './PerfilScreen';
+import CategoriasScreen from './CategoriasScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -62,7 +63,7 @@ function MyTabs() {
       <Tab.Screen name="Início" component={HomeScreen} />
       <Tab.Screen name="Artigos" component={OrgScreen} />
       <Tab.Screen name="Notificações" component={NotificacoesScreen} />
-      <Tab.Screen name="Buscar" component={SearchScreen} />
+      <Tab.Screen name="Buscar" component={CategoriasScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );
