@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, ScrollView, View, StyleSheet, Alert, Image } from 'react-native';
+import { Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, Image } from 'react-native';
 import { auth } from '../services/firebase-config';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 import uuid from 'react-native-uuid';
@@ -115,14 +115,9 @@ const CriarORG = () => {
         style={styles.textArea}
         placeholder="Descrição"
         value={descricao}
-        onChangeText={(text) => {
-          if (text.length <= 500) {
-           setDescricao(text);
-          }
-        }}
-      multiline
+        onChangeText={setDescricao}
+        multiline
       />
-
 
       <TextInput
         style={styles.input}
@@ -145,7 +140,6 @@ const CriarORG = () => {
         placeholder="Telefone"
         value={telefone}
         onChangeText={setTelefone}
-        keyboardType="numeric"
       />
 
         <Text style={styles.sectionTitle}>Galeria</Text>
