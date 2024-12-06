@@ -15,8 +15,8 @@ export default function DadosEndereco({ userAddress, setUserAddress, editable  }
                 const data = await response.json();
 
                 if (!data.erro){
-                   setEnderecoData({
-                        ...enderecoData,
+                   setUserAddress({
+                        ...userAddress,
                         logradouro : data.logradouro,
                         bairro: data.bairro,
                         cidade: data.localidade,

@@ -2,7 +2,7 @@
   "expo": {
     "name": "volun-mobile",
     "slug": "volun-mobile",
-    "version": "1.0.2",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "userInterfaceStyle": "light",
@@ -15,20 +15,13 @@
       "supportsTablet": true
     },
     "android": {
-      "VersionCode":"5",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#1C024F"
-      },
-      "package": "com.volun.volunmobile"
+      }
     },
     "web": {
       "favicon": "./assets/images/logo.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "4ab1143a-d147-426f-b673-e227621668a1"
-      }
     }
   }
 }
