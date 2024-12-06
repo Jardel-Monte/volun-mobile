@@ -15,8 +15,7 @@ export default function LoginScreen({ navigation }) {
         resizeMode="contain"
       />
       <View style={styles.botoesAuthContainer}>
-        <BotaoAuth icon={require('../assets/images/google.png')} navigation={navigation} />
-        <BotaoAuth icon={require('../assets/images/facebook.png')} navigation={navigation} />
+        {/* <BotaoAuth icon={require('../assets/images/google.png')} navigation={navigation} /> */}
       </View>
       <TouchableOpacity style={styles.botaoCriarConta} onPress={() => navigation.navigate('CriarConta')}>
         <Text style={[styles.botaoCriarContaTexto, globalStyles.textBold]}>Criar Conta</Text>

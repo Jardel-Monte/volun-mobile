@@ -1,36 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ErrorPage from './ErrorPage';
 
 const { width } = Dimensions.get('window');
 
 export default function EventoCardFullWidth({ evento }) {
     const navigation = useNavigation();
+    const [error, setError] = useState(null);
 
-    if (!evento) {
-        return null;
+    useEffect(() => {
+        if (!evento) {
+            setError("Não foi possível carregar as informações do evento.");
+            return;
+        }
+
+        if (!evento.objectID) {
+            setError("ID do evento não encontrado.");
+            return;
+        }
+    }, [evento]);
+
+    if (error) {
+        return <ErrorPage/>;
     }
 
-    const eventId = evento._id;
-    const { titulo, imagem, endereco, data_inicio } = evento;
+    const { objectID: eventId, titulo, imagem, endereco, dataInicio } = evento;
 
     const handlePress = () => {
-        if (eventId) {
-            navigation.navigate('EventoInfo', { eventoId: eventId });
-        } else {
-            console.error('Missing id for navigation');
-        }
+        navigation.navigate('EventoInfo', { eventoId: eventId });
     };
 
     return (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.card}
             onPress={handlePress}
             activeOpacity={0.9}
         >
-            <Image 
-                source={{ uri: imagem || 'https://via.placeholder.com/150' }} 
-                style={styles.imagemEvento} 
+            <Image
+                source={{ uri: imagem || 'https://via.placeholder.com/150' }}
+                style={styles.imagemEvento}
             />
             <View style={styles.overlay} />
             <View style={styles.infoContainer}>
@@ -46,11 +55,11 @@ export default function EventoCardFullWidth({ evento }) {
                             </Text>
                         </View>
                     )}
-                    {data_inicio && (
+                    {dataInicio && (
                         <View style={styles.dateContainer}>
                             <Text style={styles.icon}>📅</Text>
                             <Text style={styles.data}>
-                                {new Date(data_inicio).toLocaleDateString('pt-BR', {
+                                {new Date(dataInicio).toLocaleDateString('pt-BR', {
                                     day: '2-digit',
                                     month: '2-digit',
                                 })}
@@ -65,11 +74,11 @@ export default function EventoCardFullWidth({ evento }) {
 
 const styles = StyleSheet.create({
     card: {
-        width: '100%', // Ocupa 100% da largura disponível
-        height: 250, // Altura maior para um card retangular
+        width: '100%',
+        height: 250,
         borderRadius: 16,
         marginBottom: 16,
-        marginHorizontal: 16, // Margem lateral para espaçamento
+        marginHorizontal: 16,
         overflow: 'hidden',
         backgroundColor: '#fff',
         elevation: 5,
@@ -127,3 +136,4 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 });
+

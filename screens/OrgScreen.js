@@ -26,12 +26,11 @@ export default function OrgScreen() {
             const data = await response.json();
             setOrganizations(data);
             if (data.length > 0) {
-                setSelectedOrg(data[0]); // Seleciona a primeira ONG por padrão
+                setSelectedOrg(data[0]);
             } else {
                 setSelectedOrg(null);
             }
         } catch (error) {
-            console.error("Erro ao buscar organizações:", error);
         } finally {
             setLoading(false);
         }

@@ -100,8 +100,6 @@ export default function EntrarConta({ navigation }) {
                 <Text style={[styles.esqueciSenha, globalStyles.textSemiBold, globalStyles.underline]}>Esqueci minha senha</Text>
             </TouchableOpacity>
             <View style={styles.botoesAuthContainer}>
-                <BotaoAuth icon={require('../assets/images/google.png')} />
-                <BotaoAuth icon={require('../assets/images/facebook.png')} />
             </View>
             <Text style={[styles.cadastroTexto, globalStyles.textSemiBold]}>
                 Não tem cadastro? <TouchableOpacity style={styles.cadastroLink} onPress={() => navigation.navigate('CriarConta')}>

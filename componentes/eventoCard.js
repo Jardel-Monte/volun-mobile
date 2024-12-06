@@ -63,11 +63,10 @@ export default function EventoCard({ evento }) {
 
 const styles = StyleSheet.create({
     card: {
-        width: width - 32,
+        width: width - 42,
         height: 200,
         borderRadius: 16,
         marginBottom: 16,
-        marginHorizontal: 16,
         overflow: 'hidden',
         backgroundColor: '#fff',
         elevation: 5,
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
+        margin: 5,
     },
     imagemEvento: {
         width: '100%',

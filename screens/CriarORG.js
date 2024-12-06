@@ -42,6 +42,21 @@ const CriarORG = () => {
       return;
     }
 
+    if (cnpj.length !== 14) {
+      Alert.alert('Erro', 'O CNPJ deve conter 14 dígitos.');
+      return;
+    }
+
+    if (ddd.length !== 2) {
+      Alert.alert('Erro', 'O DDD deve conter 2 dígitos.');
+      return;
+    }
+
+    if (telefone.length < 8 || telefone.length > 9) {
+      Alert.alert('Erro', 'O número de telefone deve conter 8 ou 9 dígitos.');
+      return;
+    }
+
     try {
       const storage = getStorage();
       const imageName = `${uuid.v4()}.jpg`;
@@ -140,6 +155,7 @@ const CriarORG = () => {
         placeholder="Telefone"
         value={telefone}
         onChangeText={setTelefone}
+        keyboardType="numeric"
       />
 
         <Text style={styles.sectionTitle}>Galeria</Text>

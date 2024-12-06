@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { InstantSearch, useSearchBox, useHits, Configure } from "react-instantsearch-hooks";
 import algoliaClient from "../services/algolia-config";
-import EventoCard from "../componentes/eventoCard";
 import EventoCardFullWidth from "../componentes/eventoCard2";
 
 function Hits() {

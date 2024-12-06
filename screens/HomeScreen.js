@@ -79,21 +79,6 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Pesquisar eventos..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    onSubmitEditing={handleSearch}
-                />
-                <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-                    <Ionicons name="search" size={24} color="#007AFF" />
-                </TouchableOpacity>
-            </View>
-
-            <Button title="Sair" onPress={handleLogout} />
-
             <ScrollView style={styles.scrollContainer}>
                 {featuredEventos.length > 0 && (
                     <CategorySlider category="Eventos em Destaque" eventos={featuredEventos} />

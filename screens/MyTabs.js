@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Material Icons
 import HomeScreen from './HomeScreen';
 import OrgScreen from './OrgScreen';
-import NotificacoesScreen from './NotificacoesScreen';
 import SearchScreen from './SearchScreen';
 import PerfilScreen from './PerfilScreen';
 import CategoriasScreen from './CategoriasScreen';
@@ -25,9 +24,7 @@ function MyTabs() {
             case 'Artigos':
               iconName = 'article';
               break;
-            case 'Notificações':
-              iconName = 'notifications';
-              break;
+            
             case 'Buscar':
               iconName = 'search';
               break;
@@ -62,7 +59,6 @@ function MyTabs() {
     >
       <Tab.Screen name="Início" component={HomeScreen} />
       <Tab.Screen name="Artigos" component={OrgScreen} />
-      <Tab.Screen name="Notificações" component={NotificacoesScreen} />
       <Tab.Screen name="Buscar" component={CategoriasScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>

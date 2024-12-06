@@ -7,6 +7,7 @@ import axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 import uuid from 'react-native-uuid'; // Para gerar nomes únicos de arquivos (instale com `npm install react-native-uuid`)
 import { useRoute } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
 
 const CriarEventos = () => {
   const [titulo, setTitulo] = useState('');
@@ -27,11 +28,18 @@ const CriarEventos = () => {
   const [showFinalPicker, setShowFinalPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([
-    'Solidariedade', 'Educação', 'Saúde', 'Meio Ambiente', 'Cultura', 'Voluntariado', 'Tecnologia', // Tags disponíveis
+    "Educação", "Saúde", "Social", "Meio Ambiente", "Cultura", "Arte", "Esporte",
+  "Lazer", "Alimentação", "Animais", "Assistência Social", "Música", "Cooperativo",
+  "Tecnologia", "Apoio Psicológico", "Reciclagem", "Eventos Religiosos",
+  "Treinamentos", "Inclusão Digital", "Capacitação", "Empreendedorismo",
+  "Eventos Infantis", "Moradia", "Resgate", "Acessibilidade", "Combate à Fome",
+  "Bem-Estar", "Direitos Humanos", "Reforma de Espaços", "Defesa Civil",
+  "Combate à Violência", "Saúde Mental", "Rural", "Governamental", "Doação",
+  "Urbano", "Outros", // Tags disponíveis
   ]);
   const route = useRoute();
   const orgId = route.params?.orgId;
-
+  const navigation = useNavigation();
   const storage = getStorage(); // Inicializa o Firebase Storage
 
   const buscarCep = async () => {
@@ -150,6 +158,36 @@ const CriarEventos = () => {
   const handleSave = async () => {
     try {
 
+      if (!titulo.trim()) {
+        Alert.alert('Erro', 'Por favor, insira um título para o evento.');
+        return;
+      }
+
+      if (!descricao.trim()) {
+        Alert.alert('Erro', 'Por favor, insira uma descrição para o evento.');
+        return;
+      }
+
+      if (!dataInicio || !dataFinal) {
+        Alert.alert('Erro', 'Por favor, insira as datas de início e término do evento.');
+        return;
+      }
+
+      if (!vagaLimite || parseInt(vagaLimite) <= 0) {
+        Alert.alert('Erro', 'Por favor, insira um número válido de vagas para voluntários.');
+        return;
+      }
+
+      if (!selectedImage) {
+        Alert.alert('Erro', 'Por favor, selecione uma imagem para o evento.');
+        return;
+      }
+
+      if (selectedTags.length === 0) {
+        Alert.alert('Erro', 'Por favor, selecione pelo menos uma tag para o evento.');
+        return;
+      }
+
       if (!selectedImage) {
         alert("Selecione uma imagem antes de criar o evento.");
         return;
@@ -257,7 +295,8 @@ const CriarEventos = () => {
       }
   
   
-      alert(`Evento criado com sucesso:`);
+      alert('Evento criado com sucesso!');
+      navigation.navigate('HomeScreen');
     } catch (error) {
       console.error('Erro ao salvar:', error.message);
       alert('Ocorreu um erro ao salvar. Tente novamente.');
@@ -321,6 +360,7 @@ const CriarEventos = () => {
           onChangeText={setCEP}
           keyboardType="numeric"
         />
+
         <Button title="Buscar CEP" onPress={buscarCep} />
         
         <TextInput
@@ -481,9 +521,9 @@ const CriarEventos = () => {
         <Text style={styles.buttonText}>Cadastrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cancelButton} onPress={handleSave}>
-        <Text style={styles.cancelButtonText}>Cancelar</Text>
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate('HomeScreen')}>
+          <Text style={styles.cancelButtonText}>Cancelar</Text>
+        </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -523,6 +563,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 15,
+    marginTop: 10,
     fontSize: 16,
     color: "#333",
   },

@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { auth } from '../services/firebase-config'; // Importar Firebase config
-import { signOut } from 'firebase/auth'; // Para função de logout
-import { globalStyles, theme } from '../styles/theme'; // Importar seu tema global
+import { auth } from '../services/firebase-config';
+import { signOut } from 'firebase/auth';
+import { globalStyles, theme } from '../styles/theme';
 import InformacaoPessoal from './InformacaoPessoal';
 import Historico from './Historico';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PerfilScreen({ navigation }) {
     const [user, setUser] = useState(null);
-    const [userData, setUserData] = useState(null); // Estado para armazenar dados da API
+    const [userData, setUserData] = useState(null);
     const [activeComponent, setActiveComponent] = useState("Historico");
 
     useEffect(() => {
         const currentUser = auth.currentUser;
         if (currentUser) {
-            setUser(currentUser); // Definir o usuário autenticado no estado
-            fetchUserData(currentUser.uid); // Buscar dados da API usando o UID
+            setUser(currentUser);
+            fetchUserData(currentUser.uid);
         }
     }, []);
 
@@ -28,12 +30,11 @@ export default function PerfilScreen({ navigation }) {
         }
     }
 
-    // Função para buscar dados do usuário pela API
     const fetchUserData = async (uid) => {
         try {
             const response = await fetch('https://volun-api-eight.vercel.app/usuarios/' + uid);
             const data = await response.json();
-            setUserData(data); // Armazenar os dados retornados da API
+            setUserData(data);
         } catch (error) {
             console.error('Erro ao buscar dados do usuário:', error);
         }
@@ -41,9 +42,9 @@ export default function PerfilScreen({ navigation }) {
 
     const handleLogout = async () => {
         try {
-            await signOut(auth); // Fazer logout
+            await signOut(auth);
             Alert.alert('Logout', 'Você foi deslogado com sucesso.');
-            navigation.replace('LoginScreen'); // Navegar de volta para a tela de login
+            navigation.replace('LoginScreen');
         } catch (error) {
             console.error('Erro ao fazer logout:', error);
             Alert.alert('Erro', 'Não foi possível deslogar.');
@@ -54,41 +55,51 @@ export default function PerfilScreen({ navigation }) {
         <View style={styles.container}>
             {user && (
                 <>
-                    <View style={styles.profileComponent}>
-                        <Image
-                            source={{ uri: user.photoURL || require('../assets/images/photo-perfil.png') }} // Caso não tenha uma imagem, será usado um placeholder
-                            style={styles.profileImage}
-                        />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.userName}>
-                                {user.displayName || `${userData?.nome} ${userData?.sobrenome}` || 'Usuário'}
-                            </Text>
-                            <Text style={styles.userEmail}>{user.email}</Text>
+                    <LinearGradient
+                        colors={[theme.colors.primary, theme.colors.secondary]}
+                        style={styles.headerGradient}
+                    >
+                        <View style={styles.profileComponent}>
+                            <Image
+                                source={{ uri: user.photoURL || 'https://via.placeholder.com/150' }}
+                                style={styles.profileImage}
+                            />
+                            <View style={styles.textContainer}>
+                                <Text style={styles.userName}>
+                                    {user.displayName || `${userData?.nome} ${userData?.sobrenome}` || 'Usuário'}
+                                </Text>
+                                <Text style={styles.userEmail}>{user.email}</Text>
+                            </View>
                         </View>
-                    </View>
-                    <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                        <Text style={styles.logoutButtonText}>Logout</Text>
-                    </TouchableOpacity>
-                    <View style={styles.componentContainer}>
-                        <View style={styles.componentView}>
-                            <TouchableOpacity 
-                                style={styles.componentButton}
-                                onPress={() => setActiveComponent("InformacaoPessoal")}
-                            >
-                                <Text style={styles.componentText}>Informação Pessoal</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.componentButton} 
-                                onPress={() => setActiveComponent("Historico")}
-                            >
-                                <Text style={styles.componentText}>Histórico</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <ScrollView style={styles.componentScrollView}>
-                            {toggleActiveComponent()}
-                        </ScrollView>
-                    </View>
+                    </LinearGradient>
                     
+                    <View style={styles.contentContainer}>
+                        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                            <Ionicons name="log-out-outline" size={24} color="#FFF" />
+                            <Text style={styles.logoutButtonText}>Logout</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.componentContainer}>
+                            <View style={styles.componentView}>
+                                <TouchableOpacity 
+                                    style={[styles.componentButton, activeComponent === "InformacaoPessoal" && styles.activeComponentButton]}
+                                    onPress={() => setActiveComponent("InformacaoPessoal")}
+                                >
+                                    <Text style={[styles.componentText, activeComponent === "InformacaoPessoal" && styles.activeComponentText]}>Informação Pessoal</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.componentButton, activeComponent === "Historico" && styles.activeComponentButton]}
+                                    onPress={() => setActiveComponent("Historico")}
+                                >
+                                    <Text style={[styles.componentText, activeComponent === "Historico" && styles.activeComponentText]}>Histórico</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    <ScrollView style={styles.componentScrollView}>
+                        {toggleActiveComponent()}
+                    </ScrollView>
                 </>
             )}
         </View>
@@ -98,81 +109,85 @@ export default function PerfilScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FBFBFE',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 100,
-        height: 'auto',
+        backgroundColor: '#F5F5F5',
+    },
+    headerGradient: {
+        paddingTop: 60,
+        paddingBottom: 30,
     },
     profileComponent: {
-        paddingVertical: 20,
-        display: 'flex',
         flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
     },
     profileImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        borderWidth: 3,
+        borderColor: '#FFF',
     },
     textContainer: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
         marginLeft: 20,
     },
     userName: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#FFF',
     },
     userEmail: {
         fontSize: 14,
-        color: 'gray',
+        color: '#E0E0E0',
         marginTop: 5,
     },
+    contentContainer: {
+        padding: 20,
+    },
     logoutButton: {
-        marginTop: 10,
-        backgroundColor: theme.colors.primary, // Cor primária do seu tema
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.primary,
         paddingVertical: 12,
-        paddingHorizontal: 30,
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        marginTop: 20,
+        elevation: 3,
     },
     logoutButtonText: {
         color: '#FFF',
         fontSize: 16,
         fontWeight: 'bold',
+        marginLeft: 10,
     },
     componentContainer: {
-        textAlign: 'center',
         marginTop: 20,
     },
     componentView: {
         flexDirection: 'row',
-        gap: 20,
+        justifyContent: 'space-between',
     },
     componentButton: {
-        backgroundColor: theme.colors.primary,
-        width: 150,
+        flex: 1,
+        backgroundColor: '#FFF',
         paddingVertical: 12,
-        marginHorizontal: 20,
         borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        marginHorizontal: 5,
+        elevation: 2,
+    },
+    activeComponentButton: {
+        backgroundColor: theme.colors.primary,
     },
     componentText: {
-        color: '#FFF',
+        color: '#333',
         textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    activeComponentText: {
+        color: '#FFF',
     },
     componentScrollView: {
-        marginVertical: 20,
-        height: 'auto',
+        flex: 1,
+        marginTop: 20,
     }
 });
-

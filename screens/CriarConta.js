@@ -11,14 +11,6 @@ export default function CriarConta( { navigation } ) {
             <Text style={[styles.tituloCriarConta, globalStyles.textBold]}>Criar Conta</Text>
             <Text style={[styles.termosCondicoes, globalStyles.textRegular]}>Ao continuar, você concorda com nossa <TouchableOpacity><Text style={globalStyles.underline}>Política de Privacidade</Text></TouchableOpacity> e <TouchableOpacity><Text style={globalStyles.underline}>Termos & Condições</Text></TouchableOpacity></Text>
             <View style={styles.botoesContinuarContainer}>
-                <TouchableOpacity style={styles.botaoContinuar}>
-                    <Image source={require('../assets/images/google.png')} style={styles.icon} resizeMode="contain" />
-                    <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Google</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.botaoContinuar}>
-                    <Image source={require('../assets/images/facebook.png')} style={styles.icon} resizeMode="contain" />
-                    <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Facebook</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.botaoContinuar} onPress={() => navigation.navigate('CriarContaForm')}>
                     <Image source={require('../assets/images/email.png')} style={styles.icon} resizeMode="contain" />
                     <Text style={[styles.botaoContinuarTexto, globalStyles.textBold]}>Continuar com Email</Text>

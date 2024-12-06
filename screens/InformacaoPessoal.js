@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 import DadosPessoal from "./DadosPessoal";
 import DadosEndereco from "./DadosEndereco";
-import { globalStyles, theme } from "../styles/theme";
+import { theme } from "../styles/theme";
 
 export default function InformacaoPessoal() {
     const [editable, setEditable] = useState(false);
@@ -28,7 +30,7 @@ export default function InformacaoPessoal() {
         estado: "",
     });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(null);
 
     const toggleEditable = () => {
         setEditable(!editable);
@@ -36,7 +38,7 @@ export default function InformacaoPessoal() {
 
     const handleSaveChanges = async () => {
         setLoading(true);
-        setError(false);
+        setError(null);
 
         const auth = getAuth();
         const user = auth.currentUser;
@@ -96,14 +98,12 @@ export default function InformacaoPessoal() {
 
     const formatarDataISO = (date) => {
         const dateObj = new Date(date);
-        // Verifica se a data é válida
         if (isNaN(dateObj.getTime())) {
             throw new Error("Data inválida.");
         }
         const day = dateObj.getUTCDate();
         const month = dateObj.getMonth() + 1;
         const year = dateObj.getFullYear();
-        // Adiciona zero à esquerda para dia e mês, se necessário
         const formattedDay = day < 10 ? `0${day}` : day;
         const formattedMonth = month < 10 ? `0${month}` : month;
         return `${formattedDay}/${formattedMonth}/${year}`;
@@ -151,74 +151,143 @@ export default function InformacaoPessoal() {
 
     return (
         <View style={styles.container}>
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[styles.tab, activeComponent === "DadosPessoal" && styles.activeTab]}
+                    onPress={() => setActiveComponent("DadosPessoal")}
+                >
+                    <Text style={[styles.tabText, activeComponent === "DadosPessoal" && styles.activeTabText]}>Dados Pessoais</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeComponent === "DadosEndereço" && styles.activeTab]}
+                    onPress={() => setActiveComponent("DadosEndereço")}
+                >
+                    <Text style={[styles.tabText, activeComponent === "DadosEndereço" && styles.activeTabText]}>Endereço</Text>
+                </TouchableOpacity>
+            </View>
+
             <ScrollView style={styles.componentScrollView}>
                 {renderActiveComponent()}
             </ScrollView>
+
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.buttonContent} onPress={() => setActiveComponent("DadosPessoal")}>
-                    <Text style={styles.buttonTextContent}>Dados Pessoais</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonContent} onPress={() => setActiveComponent("DadosEndereço")}>
-                    <Text style={styles.buttonTextContent}>Endereço</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.generateButtonContainer}>
                 {editable ? (
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.buttonContent} onPress={handleSaveChanges}>
-                            <Text style={styles.buttonTextContent}>Salvar</Text>
+                    <>
+                        <TouchableOpacity style={styles.button} onPress={handleSaveChanges}>
+                            <LinearGradient
+                                colors={[theme.colors.primary, theme.colors.secondary]}
+                                style={styles.buttonGradient}
+                            >
+                                <Ionicons name="save-outline" size={20} color="#FFF" />
+                                <Text style={styles.buttonText}>Salvar</Text>
+                            </LinearGradient>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.buttonContent} onPress={handleCancelChanges}>
-                            <Text style={styles.buttonTextContent}>Cancelar</Text>
+                        <TouchableOpacity style={styles.button} onPress={handleCancelChanges}>
+                            <LinearGradient
+                                colors={[theme.colors.error, theme.colors.errorDark]}
+                                style={styles.buttonGradient}
+                            >
+                                <Ionicons name="close-outline" size={20} color="#FFF" />
+                                <Text style={styles.buttonText}>Cancelar</Text>
+                            </LinearGradient>
                         </TouchableOpacity>
-                    </View>
+                    </>
                 ) : (
-                    <TouchableOpacity style={styles.buttonContent} onPress={toggleEditable}>
-                        <Text style={styles.buttonTextContent}>Editar</Text> 
+                    <TouchableOpacity style={styles.button} onPress={toggleEditable}>
+                        <LinearGradient
+                            colors={[theme.colors.primary, theme.colors.secondary]}
+                            style={styles.buttonGradient}
+                        >
+                            <Ionicons name="create-outline" size={20} color="#FFF" />
+                            <Text style={styles.buttonText}>Editar</Text>
+                        </LinearGradient>
                     </TouchableOpacity>
                 )}
             </View>
-            {loading && <Text>Carregando...</Text>}
-            {error && <Text>{error}</Text>}
+
+            {loading && (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                </View>
+            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        margin: 'auto',
-        height: 'auto',
-        paddingBottom: 100,
+        flex: 1,
+        backgroundColor: '#F5F5F5',
+        padding: 16,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        marginBottom: 16,
+        backgroundColor: '#FFF',
+        borderRadius: 25,
+        elevation: 2,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    activeTab: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: 25,
+    },
+    tabText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    activeTabText: {
+        color: '#FFF',
     },
     componentScrollView: {
-        height: 'auto',
-    },
-    generateButtonContainer: {
-        marginVertical: 10,
-        marginHorizontal: 'auto',
-        display: 'flex',
-        flexDirection: 'row',
+        flex: 1,
+        backgroundColor: '#FFF',
+        borderRadius: 10,
+        padding: 16,
+        marginBottom: 16,
     },
     buttonContainer: {
-        margin: 'auto',
-        display: 'flex',
         flexDirection: 'row',
-        marginBottom: 10,
+        justifyContent: 'space-around',
+        marginTop: 16,
     },
-    buttonContent: {
-        backgroundColor: theme.colors.primary,
-        width: 100,
+    button: {
+        flex: 1,
+        marginHorizontal: 8,
+    },
+    buttonGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 12,
-        marginHorizontal: 20,
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        borderRadius: 25,
     },
-    buttonTextContent: {
-        color: theme.colors.white,
+    buttonText: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    },
+    errorText: {
+        color: theme.colors.error,
         textAlign: 'center',
-    }
-})
+        marginTop: 16,
+    },
+});
+
