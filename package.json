@@ -6,7 +6,7 @@
     "reactNativeDirectoryCheck": {
       "listUnknownPackages": false
     }
-  },,
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
