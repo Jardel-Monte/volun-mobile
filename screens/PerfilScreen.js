@@ -60,10 +60,13 @@ export default function PerfilScreen({ navigation }) {
                         style={styles.headerGradient}
                     >
                         <View style={styles.profileComponent}>
-                            <Image
-                                source={{ uri: user.photoURL || 'https://via.placeholder.com/150' }}
-                                style={styles.profileImage}
-                            />
+                        <Image
+                            source={{
+                                uri: 'https://firebasestorage.googleapis.com/v0/b/volun-api.appspot.com/o/avatar.png?alt=media&token=1e4c52e5-4498-43cd-ba8c-41b4744662c3',
+                            }}
+                            style={styles.profileImage}
+                        />
+
                             <View style={styles.textContainer}>
                                 <Text style={styles.userName}>
                                     {user.displayName || `${userData?.nome} ${userData?.sobrenome}` || 'Usuário'}

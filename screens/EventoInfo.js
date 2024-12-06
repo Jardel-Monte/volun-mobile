@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, Dimensions, } from 'react-native';
 import { format } from 'date-fns';
 import { auth } from '../services/firebase-config';
 import { useNavigation } from '@react-navigation/native';
@@ -15,11 +15,37 @@ const EventoInfo = ({ route }) => {
   const [newDataInicio, setNewDataInicio] = useState('');
   const [newDataFim, setNewDataFim] = useState('');
   const navigation = useNavigation();
+  const [participationCount, setParticipationCount] = useState(0);
+
+  const Recarregarpage = () => {
+    navigation.replace('EventoInfo', { eventoId });
+  };
 
   useEffect(() => {
     fetchEventoDetails();
     verificarParticipacao();
+    fetchParticipationCount(); // Add this new fetch
   }, [eventoId]);
+
+  // Add this new function
+  const fetchParticipationCount = async () => {
+    try {
+      const response = await fetch(`https://volun-api-eight.vercel.app/participacao/evento/${eventoId}`);
+      if (!response.ok) {
+        throw new Error('Erro ao buscar participações');
+      }
+      const data = await response.json();
+      setParticipationCount(data.length);
+    } catch (error) {
+      console.error("Erro ao buscar participações:", error);
+    }
+  };
+
+  const progressPercentage = Math.min(
+    (participationCount / (evento?.vaga_limite || 0)) * 100,
+    100
+  );
+  const isOverLimit = participationCount > (evento?.vaga_limite || 0);
 
   const fetchEventoDetails = async () => {
     try {
@@ -70,6 +96,7 @@ const EventoInfo = ({ route }) => {
         Alert.alert("Sucesso", "Participação cancelada com sucesso!");
         setIsParticipating(false);
         setParticipacaoId(null);
+        Recarregarpage();
       } else {
         throw new Error("Erro ao cancelar participação");
       }
@@ -112,6 +139,7 @@ const EventoInfo = ({ route }) => {
         setIsParticipating(true);
         setParticipacaoId(data._id);
         Alert.alert("Sucesso", "Participação confirmada!");
+        Recarregarpage();
       } else {
         throw new Error("Erro ao confirmar participação");
       }
@@ -145,6 +173,7 @@ const EventoInfo = ({ route }) => {
       <Image source={{ uri: evento.imagem }} style={styles.imagemEvento} />
       <View style={styles.contentContainer}>
         <Text style={styles.title}>{evento.titulo}</Text>
+
         {evento.tags && evento.tags.length > 0 && (
           <View style={styles.tagsContainer}>
             {evento.tags.map((tag, index) => (
@@ -168,6 +197,27 @@ const EventoInfo = ({ route }) => {
             </Text>
           )}
         </TouchableOpacity>
+
+        <View style={styles.progressSection}>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBarBg}>
+              <View 
+                style={[
+                  styles.progressBarFill,
+                  { width: `${progressPercentage}%` },
+                  isOverLimit && styles.progressBarOverLimit
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>
+              {isOverLimit 
+                ? `Limite excedido: ${participationCount}/${evento.vaga_limite} vagas`
+                : `${participationCount}/${evento.vaga_limite} vagas preenchidas`
+              }
+            </Text>
+          </View>
+        </View>
+
 
         <View style={styles.infoSection}>
           <View style={styles.infoItem}>
@@ -202,6 +252,7 @@ const EventoInfo = ({ route }) => {
   );
 };
 
+  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -310,6 +361,36 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
+  },
+  progressSection: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+  },
+  progressContainer: {
+    width: '100%',
+  },
+  progressBarBg: {
+    height: 20,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#1F0171',
+    borderRadius: 10,
+  },
+  progressBarOverLimit: {
+    backgroundColor: '#FF3B30',
+  },
+  progressText: {
+    marginTop: 8,
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
 });
 

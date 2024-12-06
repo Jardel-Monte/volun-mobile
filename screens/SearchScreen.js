@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { InstantSearch, useSearchBox, useHits, Configure } from "react-instantsearch-hooks";
 import algoliaClient from "../services/algolia-config";
 import EventoCardFullWidth from "../componentes/eventoCard2";
+import { Ionicons } from '@expo/vector-icons';
 
 function Hits() {
   const { hits } = useHits();
@@ -29,48 +30,88 @@ function SearchInput({ searchQuery, setSearchQuery }) {
   };
 
   return (
-    <TextInput
-      style={styles.searchInput}
-      placeholder="Digite sua pesquisa"
-      value={searchQuery}
-      onChangeText={handleChange}
-    />
+    <View style={styles.searchInputContainer}>
+      <Ionicons name="search" size={24} color="#888" style={styles.searchIcon} />
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Digite sua pesquisa"
+        placeholderTextColor="#888"
+        value={searchQuery}
+        onChangeText={handleChange}
+      />
+    </View>
   );
 }
 
 export default function SearchScreen({ route }) {
-  const categoria = route?.params?.categoria; // Recebendo a categoria da tela anterior
+  const categoria = route?.params?.categoria;
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <InstantSearch searchClient={algoliaClient} indexName="eventos">
-      {/* Configura o Facet Filter para aplicar a categoria */}
-      <Configure facetFilters={[`tags:${categoria}`]} />
-
-      <View style={styles.container}>
-        <Text style={styles.title}>Categoria: {categoria}</Text>
-        <SearchInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <Hits />
-      </View>
-    </InstantSearch>
+    <SafeAreaView style={styles.safeArea}>
+      <InstantSearch searchClient={algoliaClient} indexName="eventos">
+        <Configure facetFilters={[`tags:${categoria}`]} />
+        <View style={styles.container}>
+          <Text style={styles.title}>Categoria: {categoria}</Text>
+          <SearchInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <Hits />
+        </View>
+      </InstantSearch>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, marginTop: 20, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 16, textAlign: "center" },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
-    borderRadius: 8,
-    marginBottom: 16,
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  noResults: { textAlign: "center", color: "#888", fontSize: 18, marginTop: 20 },
-  resultsContainer: { 
-    paddingBottom: 20, 
-    flexDirection: "row", 
-    flexWrap: "wrap", // Permite quebra de linha
-    justifyContent: "space-around", // Ajusta o espaçamento entre os cards
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f5f5f5",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#1f0171",
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: "#333",
+  },
+  noResults: {
+    textAlign: "center",
+    color: "#888",
+    fontSize: 18,
+    marginTop: 20,
+    fontStyle: 'italic',
+  },
+  resultsContainer: {
+    paddingBottom: 20,
+    alignItems: "center",
   },
 });
