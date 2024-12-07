@@ -110,15 +110,6 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
         backgroundColor: '#FFFFFF',
     },
-    searchInput: {
-        flex: 1,
-        height: 40,
-        borderColor: '#CCCCCC',
-        borderWidth: 1,
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        fontSize: 16,
-    },
     searchButton: {
         padding: 10,
     },

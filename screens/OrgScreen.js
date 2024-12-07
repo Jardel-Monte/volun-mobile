@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     addEvent: {
         backgroundColor: '#1f0171',
         borderRadius: 10,
-        padding: 10,
+        padding: 20,
         flex: 1,
         marginRight: 5,
     },
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     },
     tab: {
         flex: 1,
-        padding: 10,
+        padding: 5,
         alignItems: 'center',
         borderBottomWidth: 2,
         borderBottomColor: '#f0f0f0',

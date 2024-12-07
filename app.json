@@ -18,10 +18,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#1C024F"
-      }
+      },
+      "package": "com.kevin987.volunmobile"
     },
     "web": {
       "favicon": "./assets/images/logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "33b81450-c8d2-499e-9f84-2207050c25d7"
+      }
     }
   }
 }

@@ -175,8 +175,8 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
     borderRadius: 20,
     backgroundColor: '#FFF',
     marginHorizontal: 4,

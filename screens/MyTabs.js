@@ -21,7 +21,7 @@ function MyTabs() {
             case 'Início':
               iconName = 'home';
               break;
-            case 'Artigos':
+            case 'Organização':
               iconName = 'article';
               break;
             
@@ -58,7 +58,7 @@ function MyTabs() {
       })}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
-      <Tab.Screen name="Artigos" component={OrgScreen} />
+      <Tab.Screen name="Organização" component={OrgScreen} />
       <Tab.Screen name="Buscar" component={CategoriasScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
