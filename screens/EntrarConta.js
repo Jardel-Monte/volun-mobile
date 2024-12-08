@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, TouchableOpacity, Text, Image, Dimensions, StyleSheet, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { globalStyles, theme } from '../styles/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { BotaoAuth } from '../componentes/botaoAuth';
 import { auth } from '../services/firebase-config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,7 +16,7 @@ async function verificarUsuario(uid) {
         const response = await axios.get('https://volun-api-eight.vercel.app/usuarios/' + uid);
         return response.data;
     } catch (error) {
-        console.error("Insira os dados pessoais por favor!");
+        console.error("Erro ao verificar usuário:", error);
         return null;
     }
 }
@@ -26,6 +25,8 @@ export default function EntrarConta({ navigation }) {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [senhaVisivel, setSenhaVisivel] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [userSuspenso, setUserSuspenso] = useState(false);
 
     // Função para lidar com o login
     const handleLogin = async () => {
@@ -33,6 +34,8 @@ export default function EntrarConta({ navigation }) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;
         }
+
+        setLoading(true);
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, senha);
@@ -44,8 +47,12 @@ export default function EntrarConta({ navigation }) {
             const usuario = await verificarUsuario(uid);
 
             if (usuario) {
-                // Se o usuário já existe, navegue para a HomeScreen
-                navigation.navigate('HomeScreen');
+                if (usuario.userSuspenso) {
+                    setUserSuspenso(true);
+                } else {
+                    // Se o usuário já existe e não está suspenso, navegue para a HomeScreen
+                    navigation.navigate('HomeScreen');
+                }
             } else {
                 // Se o usuário não existe, navegue para a InfoForm, passando o UID
                 navigation.navigate('InfoForm', { uid });
@@ -62,8 +69,29 @@ export default function EntrarConta({ navigation }) {
                 Alert.alert('Erro', 'Falha ao autenticar.');
             }
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
+
+    if (userSuspenso) {
+        return (
+            <View style={styles.container}>
+                <Text style={[styles.warningText, globalStyles.textBold]}>
+                    Sua conta está suspensa.
+                </Text>
+                <TouchableOpacity 
+                    style={styles.botaoVoltar}
+                    onPress={() => {
+                        setUserSuspenso(false);
+                        navigation.navigate('LoginScreen');
+                    }}
+                >
+                    <Text style={[styles.botaoVoltarTexto, globalStyles.textBold]}>Voltar</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -93,8 +121,12 @@ export default function EntrarConta({ navigation }) {
                     <Ionicons style={styles.senhaIcon} name={senhaVisivel ? "eye" : "eye-off"} size={24} color="gray" />
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin}>
-                <Text style={[styles.botaoEntrarTexto, globalStyles.textBold]}>Entrar</Text>
+            <TouchableOpacity style={styles.botaoEntrar} onPress={handleLogin} disabled={loading}>
+                {loading ? (
+                    <ActivityIndicator color={theme.colors.white} />
+                ) : (
+                    <Text style={[styles.botaoEntrarTexto, globalStyles.textBold]}>Entrar</Text>
+                )}
             </TouchableOpacity>
             <TouchableOpacity>
                 <Text style={[styles.esqueciSenha, globalStyles.textSemiBold, globalStyles.underline]}>Esqueci minha senha</Text>
@@ -189,5 +221,23 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 30,
         marginTop: 80,
+    },
+    warningText: {
+        fontSize: 24,
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    botaoVoltar: {
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 15,
+        borderRadius: 16,
+        width: width * 0.8,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    botaoVoltarTexto: {
+        color: theme.colors.white,
+        fontSize: 16,
     },
 });

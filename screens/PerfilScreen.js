@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { auth } from '../services/firebase-config';
 import { signOut } from 'firebase/auth';
 import { globalStyles, theme } from '../styles/theme';
 import InformacaoPessoal from './InformacaoPessoal';
 import Historico from './Historico';
+import Correio from './Correio'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,6 +13,7 @@ export default function PerfilScreen({ navigation }) {
     const [user, setUser] = useState(null);
     const [userData, setUserData] = useState(null);
     const [activeComponent, setActiveComponent] = useState("Historico");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const currentUser = auth.currentUser;
@@ -28,6 +30,9 @@ export default function PerfilScreen({ navigation }) {
         else if (activeComponent === "InformacaoPessoal"){
             return <InformacaoPessoal />
         }
+        else if (activeComponent === "Correio"){
+            return <Correio />
+        }
     }
 
     const fetchUserData = async (uid) => {
@@ -37,6 +42,8 @@ export default function PerfilScreen({ navigation }) {
             setUserData(data);
         } catch (error) {
             console.error('Erro ao buscar dados do usuário:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,6 +57,14 @@ export default function PerfilScreen({ navigation }) {
             Alert.alert('Erro', 'Não foi possível deslogar.');
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -88,13 +103,19 @@ export default function PerfilScreen({ navigation }) {
                                     style={[styles.componentButton, activeComponent === "InformacaoPessoal" && styles.activeComponentButton]}
                                     onPress={() => setActiveComponent("InformacaoPessoal")}
                                 >
-                                    <Text style={[styles.componentText, activeComponent === "InformacaoPessoal" && styles.activeComponentText]}>Informação Pessoal</Text>
+                                    <Text style={[styles.componentText, activeComponent === "InformacaoPessoal" && styles.activeComponentText]}>Inf. pessoal</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={[styles.componentButton, activeComponent === "Historico" && styles.activeComponentButton]}
                                     onPress={() => setActiveComponent("Historico")}
                                 >
                                     <Text style={[styles.componentText, activeComponent === "Historico" && styles.activeComponentText]}>Histórico</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.componentButton, activeComponent === "Correio" && styles.activeComponentButton]}
+                                    onPress={() => setActiveComponent("Correio")}
+                                >
+                                    <Text style={[styles.componentText, activeComponent === "Correio" && styles.activeComponentText]}>Correio</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -112,6 +133,12 @@ export default function PerfilScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#F5F5F5',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#F5F5F5',
     },
     headerGradient: {
@@ -173,10 +200,10 @@ const styles = StyleSheet.create({
     componentButton: {
         flex: 1,
         backgroundColor: '#FFF',
-        paddingVertical: 12,
+        paddingVertical: 5,
         borderRadius: 20,
-        marginHorizontal: 5,
-        elevation: 2,
+        marginHorizontal: 3,
+        elevation: 3,
     },
     activeComponentButton: {
         backgroundColor: theme.colors.primary,

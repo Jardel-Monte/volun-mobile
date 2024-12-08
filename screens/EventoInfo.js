@@ -16,6 +16,7 @@ const EventoInfo = ({ route }) => {
   const [newDataFim, setNewDataFim] = useState('');
   const navigation = useNavigation();
   const [participationCount, setParticipationCount] = useState(0);
+  const [eventEnded, setEventEnded] = useState(false);
 
   const Recarregarpage = () => {
     navigation.replace('EventoInfo', { eventoId });
@@ -24,10 +25,22 @@ const EventoInfo = ({ route }) => {
   useEffect(() => {
     fetchEventoDetails();
     verificarParticipacao();
-    fetchParticipationCount(); // Add this new fetch
-  }, [eventoId]);
+    fetchParticipationCount();
 
-  // Add this new function
+    const checkEventEnded = () => {
+      if (evento) {
+        const currentDate = new Date();
+        const eventEndDate = new Date(evento.data_fim);
+        setEventEnded(currentDate > eventEndDate);
+      }
+    };
+
+    checkEventEnded();
+    const timer = setInterval(checkEventEnded, 60000); // Check every minute
+
+    return () => clearInterval(timer);
+  }, [eventoId, evento]);
+
   const fetchParticipationCount = async () => {
     try {
       const response = await fetch(`https://volun-api-eight.vercel.app/participacao/evento/${eventoId}`);
@@ -185,15 +198,23 @@ const EventoInfo = ({ route }) => {
         )}
 
         <TouchableOpacity
-          style={[styles.button, isParticipating && styles.cancelButton]}
+          style={[
+            styles.button,
+            isParticipating && styles.cancelButton,
+            eventEnded && styles.disabledButton
+          ]}
           onPress={handleParticipar}
-          disabled={isProcessing}
+          disabled={isProcessing || eventEnded}
         >
           {isProcessing ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.buttonText}>
-              {isParticipating ? "Cancelar Participação" : "Participar"}
+              {eventEnded
+                ? "Evento finalizado"
+                : isParticipating
+                ? "Cancelar Participação"
+                : "Participar"}
             </Text>
           )}
         </TouchableOpacity>
@@ -246,13 +267,13 @@ const EventoInfo = ({ route }) => {
         <View style={styles.descriptionContainer}>
           <Text style={styles.descriptionTitle}>Sobre o Evento</Text>
           <Text style={styles.description}>{evento.descricao}</Text>
+          <Text style={styles.description}>{evento.descricao_2}</Text>
         </View>
       </View>
     </ScrollView>
   );
 };
 
-  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -287,6 +308,9 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#FF3B30',
+  },
+  disabledButton: {
+    backgroundColor: '#888',
   },
   buttonText: {
     color: '#fff',
@@ -395,4 +419,3 @@ const styles = StyleSheet.create({
 });
 
 export default EventoInfo;
-

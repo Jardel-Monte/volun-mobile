@@ -143,7 +143,7 @@ export default function OrgScreen() {
                             
                             // Verifica se há organizações restantes
                             if (updatedOrganizations.length === 0) {
-                                navigation.replace('OrgScreen'); // Recarrega a tela com mensagem padrão
+                                navigation.replace('HomeScreen'); // Recarrega a tela com mensagem padrão
                             }
                         }
                     } catch (error) {

@@ -453,7 +453,7 @@ const CriarEventos = () => {
         <TouchableOpacity onPress={() => setShowInicioPicker(true)}>
           <TextInput
             style={styles.input}
-            placeholder="Data de Início"
+            placeholder="data e hora de inicio 01/02/1234 12/00"
             value={dataInicio}
             onChangeText={(text) => handleInputChange(text, setDataInicio)}
             editable={true}
@@ -472,7 +472,7 @@ const CriarEventos = () => {
         <TouchableOpacity onPress={() => setShowFinalPicker(true)}>
           <TextInput
             style={styles.input}
-            placeholder="Data de Término"
+            placeholder="Data e hora de término 01/02/1234 23:59"
             value={dataFinal}
             onChangeText={(text) => handleInputChange(text, setDataFinal)}
             editable={true}
