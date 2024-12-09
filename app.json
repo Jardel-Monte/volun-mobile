@@ -17,7 +17,7 @@
     "android": {
       "versionCode": 3,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/volun-icon.png",
         "backgroundColor": "#1C024F"
       },
       "package": "com.kevin987.volunmobile"
