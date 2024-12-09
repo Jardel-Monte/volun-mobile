@@ -4,7 +4,7 @@
     "slug": "volun-mobile",
     "version": "1.0.3",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/volun-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/logo-start.png",
