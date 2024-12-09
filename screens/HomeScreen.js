@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FBFBFE',
+        marginTop: 23
     },
     searchContainer: {
         flexDirection: 'row',

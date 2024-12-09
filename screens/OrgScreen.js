@@ -266,6 +266,7 @@ export default function OrgScreen() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
+        marginTop: 23
     },
     header: {
         flexDirection: 'row',

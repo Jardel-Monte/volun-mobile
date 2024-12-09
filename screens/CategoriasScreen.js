@@ -39,7 +39,7 @@ export default function CategoriasScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 16, marginTop: 23, backgroundColor: "#fff" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 16, textAlign: "center" },
   categoriesContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center" },
   categoryOption: {

@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Material Icons
 import HomeScreen from './HomeScreen';
 import OrgScreen from './OrgScreen';
-import SearchScreen from './SearchScreen';
 import PerfilScreen from './PerfilScreen';
 import CategoriasScreen from './CategoriasScreen';
 
@@ -55,6 +54,7 @@ function MyTabs() {
           marginRight: 3,
         },
         tabBarLabel: () => null, // Hide the default tab label
+        headerShown: false,
       })}
     >
       <Tab.Screen name="Início" component={HomeScreen} />
